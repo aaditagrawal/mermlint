@@ -1,0 +1,88 @@
+{
+  "node": "v24.21.0",
+  "wallMs": 1517,
+  "snippets": 2001,
+  "errors": 400,
+  "workers": 1,
+  "phases": [
+    {
+      "threadId": 0,
+      "phases": {
+        "discoveryAndRead": 23.069,
+        "extractionAndCacheRead": 11.625,
+        "lint": 1409.328,
+        "assemblyAndCacheWrite": 0.436,
+        "report": 6.948
+      },
+      "snippets": 2001,
+      "workers": 1
+    }
+  ],
+  "profiles": [
+    {
+      "threadId": 0,
+      "durationMs": 1481,
+      "samplesMs": {
+        "other": 79,
+        "io": 12,
+        "moduleEvaluation": 42,
+        "compilation": 73,
+        "gc": 28,
+        "configuration": 963,
+        "parsing": 254,
+        "diagnostics": 29,
+        "idle": 2
+      },
+      "topSelfMs": [
+        [
+          "fastAssignWithDepth",
+          603
+        ],
+        [
+          "put",
+          359
+        ],
+        [
+          "<anonymous>",
+          124
+        ],
+        [
+          "compileSourceTextModule",
+          59
+        ],
+        [
+          "parse",
+          38
+        ],
+        [
+          "(garbage collector)",
+          28
+        ],
+        [
+          "(program)",
+          17
+        ],
+        [
+          "fromText",
+          12
+        ],
+        [
+          "parseError",
+          8
+        ],
+        [
+          "newParser.parse",
+          7
+        ],
+        [
+          "remove",
+          7
+        ],
+        [
+          "lintSnippet",
+          7
+        ]
+      ]
+    }
+  ]
+}

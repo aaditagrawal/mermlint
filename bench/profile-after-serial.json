@@ -1,0 +1,88 @@
+{
+  "node": "v24.21.0",
+  "wallMs": 643,
+  "snippets": 2001,
+  "errors": 400,
+  "workers": 1,
+  "phases": [
+    {
+      "threadId": 0,
+      "phases": {
+        "discoveryAndRead": 23.982,
+        "extractionAndCacheRead": 6.569,
+        "lint": 532.454,
+        "assemblyAndCacheWrite": 0.339,
+        "report": 7.581
+      },
+      "snippets": 2001,
+      "workers": 1
+    }
+  ],
+  "profiles": [
+    {
+      "threadId": 0,
+      "durationMs": 603,
+      "samplesMs": {
+        "other": 77,
+        "compilation": 71,
+        "moduleEvaluation": 44,
+        "gc": 21,
+        "io": 15,
+        "configuration": 75,
+        "parsing": 267,
+        "diagnostics": 31,
+        "idle": 2
+      },
+      "topSelfMs": [
+        [
+          "<anonymous>",
+          137
+        ],
+        [
+          "compileSourceTextModule",
+          60
+        ],
+        [
+          "parse",
+          45
+        ],
+        [
+          "fastAssignWithDepth",
+          43
+        ],
+        [
+          "(garbage collector)",
+          21
+        ],
+        [
+          "(program)",
+          14
+        ],
+        [
+          "materialize",
+          12
+        ],
+        [
+          "cloneConfig",
+          12
+        ],
+        [
+          "put",
+          11
+        ],
+        [
+          "fromText",
+          10
+        ],
+        [
+          "compileForInternalLoader",
+          8
+        ],
+        [
+          "cleanExpectedToken",
+          8
+        ]
+      ]
+    }
+  ]
+}

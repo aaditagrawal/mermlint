@@ -1,0 +1,369 @@
+{
+  "description": "Exploratory three-process medians, each change cumulative unless noted. Final five-run measurements are in round2.json.",
+  "trials": [
+    {
+      "mode": "round2-affinity",
+      "node": "v24.21.0",
+      "cpu": "AMD Ryzen 5 5600G with Radeon Graphics",
+      "rounds": 3,
+      "files": 1001,
+      "cold": {
+        "medianMs": 96.37,
+        "snippets": 1,
+        "errors": 0,
+        "workers": 1
+      },
+      "serial": {
+        "medianMs": 544.43,
+        "snippets": 2001,
+        "errors": 400,
+        "workers": 1,
+        "diagramsPerSecond": 3675
+      },
+      "corpus": {
+        "medianMs": 354.48,
+        "snippets": 2001,
+        "errors": 400,
+        "workers": 4
+      },
+      "cached": {
+        "medianMs": 91.66,
+        "snippets": 2001,
+        "errors": 400,
+        "workers": 0
+      }
+    },
+    {
+      "mode": "round2-clone",
+      "node": "v24.21.0",
+      "cpu": "AMD Ryzen 5 5600G with Radeon Graphics",
+      "rounds": 3,
+      "files": 1001,
+      "cold": {
+        "medianMs": 109.1,
+        "snippets": 1,
+        "errors": 0,
+        "workers": 1
+      },
+      "serial": {
+        "medianMs": 1350.98,
+        "snippets": 2001,
+        "errors": 400,
+        "workers": 1,
+        "diagramsPerSecond": 1481
+      },
+      "corpus": {
+        "medianMs": 694.02,
+        "snippets": 2001,
+        "errors": 400,
+        "workers": 4
+      },
+      "cached": {
+        "medianMs": 95.8,
+        "snippets": 2001,
+        "errors": 400,
+        "workers": 0
+      }
+    },
+    {
+      "mode": "round2-entry",
+      "node": "v24.21.0",
+      "cpu": "AMD Ryzen 5 5600G with Radeon Graphics",
+      "rounds": 3,
+      "files": 1001,
+      "cold": {
+        "medianMs": 97.21,
+        "snippets": 1,
+        "errors": 0,
+        "workers": 1
+      },
+      "serial": {
+        "medianMs": 737.35,
+        "snippets": 2001,
+        "errors": 400,
+        "workers": 1,
+        "diagramsPerSecond": 2714
+      },
+      "corpus": {
+        "medianMs": 487.55,
+        "snippets": 2001,
+        "errors": 400,
+        "workers": 4
+      },
+      "cached": {
+        "medianMs": 95.18,
+        "snippets": 2001,
+        "errors": 400,
+        "workers": 0
+      }
+    },
+    {
+      "mode": "round2-lazy",
+      "node": "v24.21.0",
+      "cpu": "AMD Ryzen 5 5600G with Radeon Graphics",
+      "rounds": 3,
+      "files": 1001,
+      "cold": {
+        "medianMs": 103.84,
+        "snippets": 1,
+        "errors": 0,
+        "workers": 1
+      },
+      "serial": {
+        "medianMs": 851.73,
+        "snippets": 2001,
+        "errors": 400,
+        "workers": 1,
+        "diagramsPerSecond": 2349
+      },
+      "corpus": {
+        "medianMs": 515.38,
+        "snippets": 2001,
+        "errors": 400,
+        "workers": 4
+      },
+      "cached": {
+        "medianMs": 93.35,
+        "snippets": 2001,
+        "errors": 400,
+        "workers": 0
+      }
+    },
+    {
+      "mode": "round2-plan-assign",
+      "node": "v24.21.0",
+      "cpu": "AMD Ryzen 5 5600G with Radeon Graphics",
+      "rounds": 3,
+      "files": 1001,
+      "cold": {
+        "medianMs": 98.22,
+        "snippets": 1,
+        "errors": 0,
+        "workers": 1
+      },
+      "serial": {
+        "medianMs": 1944,
+        "snippets": 2001,
+        "errors": 400,
+        "workers": 1,
+        "diagramsPerSecond": 1029
+      },
+      "corpus": {
+        "medianMs": 872.69,
+        "snippets": 2001,
+        "errors": 400,
+        "workers": 4
+      },
+      "cached": {
+        "medianMs": 89.53,
+        "snippets": 2001,
+        "errors": 400,
+        "workers": 0
+      }
+    },
+    {
+      "mode": "round2-plan",
+      "node": "v24.21.0",
+      "cpu": "AMD Ryzen 5 5600G with Radeon Graphics",
+      "rounds": 3,
+      "files": 1001,
+      "cold": {
+        "medianMs": 113.51,
+        "snippets": 1,
+        "errors": 0,
+        "workers": 1
+      },
+      "serial": {
+        "medianMs": 2213.24,
+        "snippets": 2001,
+        "errors": 400,
+        "workers": 1,
+        "diagramsPerSecond": 904
+      },
+      "corpus": {
+        "medianMs": 861.55,
+        "snippets": 2001,
+        "errors": 400,
+        "workers": 4
+      },
+      "cached": {
+        "medianMs": 91.9,
+        "snippets": 2001,
+        "errors": 400,
+        "workers": 0
+      }
+    },
+    {
+      "mode": "round2-renderer",
+      "node": "v24.21.0",
+      "cpu": "AMD Ryzen 5 5600G with Radeon Graphics",
+      "rounds": 3,
+      "files": 1001,
+      "cold": {
+        "medianMs": 103.57,
+        "snippets": 1,
+        "errors": 0,
+        "workers": 1
+      },
+      "serial": {
+        "medianMs": 771.57,
+        "snippets": 2001,
+        "errors": 400,
+        "workers": 1,
+        "diagramsPerSecond": 2593
+      },
+      "corpus": {
+        "medianMs": 490.36,
+        "snippets": 2001,
+        "errors": 400,
+        "workers": 4
+      },
+      "cached": {
+        "medianMs": 95.71,
+        "snippets": 2001,
+        "errors": 400,
+        "workers": 0
+      }
+    },
+    {
+      "mode": "round2-reset",
+      "node": "v24.21.0",
+      "cpu": "AMD Ryzen 5 5600G with Radeon Graphics",
+      "rounds": 3,
+      "files": 1001,
+      "cold": {
+        "medianMs": 94.6,
+        "snippets": 1,
+        "errors": 0,
+        "workers": 1
+      },
+      "serial": {
+        "medianMs": 549.94,
+        "snippets": 2001,
+        "errors": 400,
+        "workers": 1,
+        "diagramsPerSecond": 3639
+      },
+      "corpus": {
+        "medianMs": 445.04,
+        "snippets": 2001,
+        "errors": 400,
+        "workers": 4
+      },
+      "cached": {
+        "medianMs": 95.46,
+        "snippets": 2001,
+        "errors": 400,
+        "workers": 0
+      }
+    },
+    {
+      "mode": "round2-queue",
+      "node": "v24.21.0",
+      "cpu": "AMD Ryzen 5 5600G with Radeon Graphics",
+      "rounds": 3,
+      "files": 1001,
+      "cold": {
+        "medianMs": 195.2,
+        "snippets": 1,
+        "errors": 0,
+        "workers": 1
+      },
+      "serial": {
+        "medianMs": 1053.41,
+        "snippets": 2001,
+        "errors": 400,
+        "workers": 1,
+        "diagramsPerSecond": 1900
+      },
+      "corpus": {
+        "medianMs": 1047,
+        "snippets": 2001,
+        "errors": 400,
+        "workers": 4
+      },
+      "cached": {
+        "medianMs": 322.52,
+        "snippets": 2001,
+        "errors": 400,
+        "workers": 0
+      },
+      "note": "Not comparable to earlier trials: unrelated CPU load raised cold and cached times too. See interleaved queue-comparison.json."
+    },
+    {
+      "mode": "round2-prune",
+      "node": "v24.21.0",
+      "cpu": "AMD Ryzen 5 5600G with Radeon Graphics",
+      "rounds": 3,
+      "files": 1001,
+      "cold": {
+        "medianMs": 117.59,
+        "snippets": 1,
+        "errors": 0,
+        "workers": 1
+      },
+      "serial": {
+        "medianMs": 801.29,
+        "snippets": 2001,
+        "errors": 400,
+        "workers": 1,
+        "diagramsPerSecond": 2497
+      },
+      "corpus": {
+        "medianMs": 500.93,
+        "snippets": 2001,
+        "errors": 400,
+        "workers": 4
+      },
+      "cached": {
+        "medianMs": 112.15,
+        "snippets": 2001,
+        "errors": 400,
+        "workers": 0
+      },
+      "note": "Discarded: marking Mermaid imports side-effect free did not reduce bundle size or demonstrate a separate win."
+    }
+  ],
+  "workerSweep": [
+    {
+      "workers": 1,
+      "wallMs": [
+        531,
+        533,
+        539
+      ]
+    },
+    {
+      "workers": 2,
+      "wallMs": [
+        371,
+        376,
+        383
+      ]
+    },
+    {
+      "workers": 3,
+      "wallMs": [
+        407,
+        424,
+        447
+      ]
+    },
+    {
+      "workers": 4,
+      "wallMs": [
+        339,
+        355,
+        361
+      ]
+    },
+    {
+      "workers": 6,
+      "wallMs": [
+        343,
+        343,
+        379
+      ]
+    }
+  ]
+}

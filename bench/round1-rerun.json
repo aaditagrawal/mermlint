@@ -1,0 +1,32 @@
+{
+  "mode": "round1",
+  "node": "v24.21.0",
+  "cpu": "AMD Ryzen 5 5600G with Radeon Graphics",
+  "rounds": 5,
+  "files": 1001,
+  "cold": {
+    "snippets": 1,
+    "errors": 0,
+    "workers": 1,
+    "medianMs": 215.71
+  },
+  "serial": {
+    "snippets": 2001,
+    "errors": 400,
+    "workers": 1,
+    "medianMs": 2127,
+    "diagramsPerSecond": 941
+  },
+  "corpus": {
+    "snippets": 2001,
+    "errors": 400,
+    "workers": 4,
+    "medianMs": 737.91
+  },
+  "cached": {
+    "snippets": 2001,
+    "errors": 400,
+    "workers": 0,
+    "medianMs": 121.7
+  }
+}

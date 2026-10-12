@@ -1,0 +1,26 @@
+{
+  "description": "Five interleaved uncached auto-worker runs under the same machine load. Alternating order each round.",
+  "wallMs": {
+    "static": [
+      606,
+      987,
+      1125,
+      839,
+      874
+    ],
+    "queue": [
+      604,
+      722,
+      837,
+      804,
+      824
+    ],
+    "round1": [
+      1484,
+      1345,
+      1699,
+      1625,
+      1476
+    ]
+  }
+}

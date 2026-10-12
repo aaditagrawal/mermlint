@@ -1,0 +1,381 @@
+{
+  "node": "v24.21.0",
+  "wallMs": 868,
+  "snippets": 2001,
+  "errors": 400,
+  "workers": 4,
+  "phases": [
+    {
+      "threadId": 0,
+      "phases": {
+        "discoveryAndRead": 25.652,
+        "extractionAndCacheRead": 11.972,
+        "lint": 725.375,
+        "assemblyAndCacheWrite": 0.511,
+        "report": 9.162
+      },
+      "snippets": 2001,
+      "workers": 4
+    },
+    {
+      "threadId": 1,
+      "phases": {
+        "engineImportAndInitialize": 72.513,
+        "parseAndLazyImports": 559.34,
+        "resultClone": 0.862
+      },
+      "snippets": 500
+    },
+    {
+      "threadId": 2,
+      "phases": {
+        "engineImportAndInitialize": 72.213,
+        "parseAndLazyImports": 520.736,
+        "resultClone": 0.764
+      },
+      "snippets": 500
+    },
+    {
+      "threadId": 3,
+      "phases": {
+        "engineImportAndInitialize": 88.927,
+        "parseAndLazyImports": 564.013,
+        "resultClone": 0.828
+      },
+      "snippets": 501
+    },
+    {
+      "threadId": 4,
+      "phases": {
+        "engineImportAndInitialize": 75.271,
+        "parseAndLazyImports": 543.393,
+        "resultClone": 0.773
+      },
+      "snippets": 500
+    }
+  ],
+  "profiles": [
+    {
+      "threadId": 0,
+      "durationMs": 811,
+      "samplesMs": {
+        "other": 62,
+        "compilation": 14,
+        "moduleEvaluation": 5,
+        "gc": 9,
+        "io": 11,
+        "idle": 709
+      },
+      "topSelfMs": [
+        [
+          "(idle)",
+          709
+        ],
+        [
+          "<anonymous>",
+          18
+        ],
+        [
+          "(program)",
+          16
+        ],
+        [
+          "compileForInternalLoader",
+          10
+        ],
+        [
+          "(garbage collector)",
+          9
+        ],
+        [
+          "writeReport",
+          7
+        ],
+        [
+          "readFileUtf8",
+          5
+        ],
+        [
+          "Worker",
+          4
+        ],
+        [
+          "lintSnippetsWithWorkers",
+          2
+        ],
+        [
+          "writeUtf8String",
+          2
+        ],
+        [
+          "lstat",
+          2
+        ],
+        [
+          "update",
+          2
+        ]
+      ]
+    },
+    {
+      "threadId": 1,
+      "durationMs": 708,
+      "samplesMs": {
+        "other": 51,
+        "gc": 30,
+        "compilation": 114,
+        "parsing": 128,
+        "moduleEvaluation": 62,
+        "io": 1,
+        "configuration": 313,
+        "diagnostics": 7,
+        "idle": 1
+      },
+      "topSelfMs": [
+        [
+          "fastAssignWithDepth",
+          191
+        ],
+        [
+          "put",
+          123
+        ],
+        [
+          "<anonymous>",
+          95
+        ],
+        [
+          "compileSourceTextModule",
+          69
+        ],
+        [
+          "(garbage collector)",
+          30
+        ],
+        [
+          "parse",
+          20
+        ],
+        [
+          "compileForInternalLoader",
+          19
+        ],
+        [
+          "(program)",
+          14
+        ],
+        [
+          "fromText",
+          8
+        ],
+        [
+          "internalBinding",
+          5
+        ],
+        [
+          "decode",
+          4
+        ],
+        [
+          "normalizeString",
+          3
+        ]
+      ]
+    },
+    {
+      "threadId": 2,
+      "durationMs": 645,
+      "samplesMs": {
+        "other": 56,
+        "compilation": 95,
+        "gc": 23,
+        "io": 1,
+        "moduleEvaluation": 57,
+        "parsing": 120,
+        "configuration": 284,
+        "diagnostics": 9,
+        "idle": 1
+      },
+      "topSelfMs": [
+        [
+          "fastAssignWithDepth",
+          178
+        ],
+        [
+          "put",
+          107
+        ],
+        [
+          "<anonymous>",
+          73
+        ],
+        [
+          "compileSourceTextModule",
+          69
+        ],
+        [
+          "(garbage collector)",
+          23
+        ],
+        [
+          "compileForInternalLoader",
+          18
+        ],
+        [
+          "parse",
+          16
+        ],
+        [
+          "(program)",
+          15
+        ],
+        [
+          "parseError",
+          6
+        ],
+        [
+          "__require",
+          5
+        ],
+        [
+          "anonymous",
+          5
+        ],
+        [
+          "getRegex",
+          5
+        ]
+      ]
+    },
+    {
+      "threadId": 3,
+      "durationMs": 707,
+      "samplesMs": {
+        "other": 52,
+        "gc": 32,
+        "compilation": 103,
+        "io": 1,
+        "moduleEvaluation": 68,
+        "configuration": 286,
+        "parsing": 153,
+        "diagnostics": 11,
+        "idle": 1
+      },
+      "topSelfMs": [
+        [
+          "fastAssignWithDepth",
+          178
+        ],
+        [
+          "put",
+          111
+        ],
+        [
+          "<anonymous>",
+          91
+        ],
+        [
+          "compileSourceTextModule",
+          74
+        ],
+        [
+          "(garbage collector)",
+          32
+        ],
+        [
+          "parse",
+          26
+        ],
+        [
+          "compileForInternalLoader",
+          16
+        ],
+        [
+          "(program)",
+          15
+        ],
+        [
+          "defaultLoadSync",
+          11
+        ],
+        [
+          "fromText",
+          10
+        ],
+        [
+          "anonymous",
+          8
+        ],
+        [
+          "__name",
+          4
+        ]
+      ]
+    },
+    {
+      "threadId": 4,
+      "durationMs": 672,
+      "samplesMs": {
+        "other": 53,
+        "compilation": 106,
+        "gc": 22,
+        "io": 1,
+        "moduleEvaluation": 62,
+        "configuration": 298,
+        "parsing": 115,
+        "diagnostics": 12,
+        "idle": 1
+      },
+      "topSelfMs": [
+        [
+          "fastAssignWithDepth",
+          165
+        ],
+        [
+          "put",
+          134
+        ],
+        [
+          "<anonymous>",
+          80
+        ],
+        [
+          "compileSourceTextModule",
+          75
+        ],
+        [
+          "(garbage collector)",
+          22
+        ],
+        [
+          "compileForInternalLoader",
+          19
+        ],
+        [
+          "parse",
+          14
+        ],
+        [
+          "(program)",
+          12
+        ],
+        [
+          "__require",
+          8
+        ],
+        [
+          "remove",
+          4
+        ],
+        [
+          "getPackageScopeConfig",
+          4
+        ],
+        [
+          "fromText",
+          4
+        ]
+      ]
+    }
+  ]
+}

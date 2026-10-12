@@ -1,0 +1,482 @@
+{
+  "method": "Five fresh processes per scenario and revision, alternating revision order each round. V8 compile cache disabled.",
+  "results": {
+    "baseline": {
+      "mode": "baseline",
+      "node": "v24.21.0",
+      "cpu": "AMD Ryzen 5 5600G with Radeon Graphics",
+      "rounds": 5,
+      "files": 1001,
+      "cold": {
+        "snippets": 1,
+        "errors": 0,
+        "workers": 1,
+        "medianMs": 341.34
+      },
+      "serial": {
+        "snippets": 2001,
+        "errors": 400,
+        "workers": 1,
+        "medianMs": 2504.51,
+        "diagramsPerSecond": 799
+      },
+      "corpus": {
+        "snippets": 2001,
+        "errors": 400,
+        "workers": 6,
+        "medianMs": 945.61
+      }
+    },
+    "round1": {
+      "mode": "round1",
+      "node": "v24.21.0",
+      "cpu": "AMD Ryzen 5 5600G with Radeon Graphics",
+      "rounds": 5,
+      "files": 1001,
+      "cold": {
+        "snippets": 1,
+        "errors": 0,
+        "workers": 1,
+        "medianMs": 215.71
+      },
+      "serial": {
+        "snippets": 2001,
+        "errors": 400,
+        "workers": 1,
+        "medianMs": 2127,
+        "diagramsPerSecond": 941
+      },
+      "corpus": {
+        "snippets": 2001,
+        "errors": 400,
+        "workers": 4,
+        "medianMs": 737.91
+      },
+      "cached": {
+        "snippets": 2001,
+        "errors": 400,
+        "workers": 0,
+        "medianMs": 121.7
+      }
+    },
+    "round2": {
+      "mode": "round2",
+      "node": "v24.21.0",
+      "cpu": "AMD Ryzen 5 5600G with Radeon Graphics",
+      "rounds": 5,
+      "files": 1001,
+      "cold": {
+        "snippets": 1,
+        "errors": 0,
+        "workers": 1,
+        "medianMs": 231.19
+      },
+      "serial": {
+        "snippets": 2001,
+        "errors": 400,
+        "workers": 1,
+        "medianMs": 963.51,
+        "diagramsPerSecond": 2077
+      },
+      "corpus": {
+        "snippets": 2001,
+        "errors": 400,
+        "workers": 4,
+        "medianMs": 362.11
+      },
+      "cached": {
+        "snippets": 2001,
+        "errors": 400,
+        "workers": 0,
+        "medianMs": 114.12
+      }
+    }
+  },
+  "raw": [
+    {
+      "scenario": "cold",
+      "name": "baseline",
+      "round": 0,
+      "wallMs": 212.01,
+      "loadAverage": 11.79
+    },
+    {
+      "scenario": "cold",
+      "name": "round1",
+      "round": 0,
+      "wallMs": 297.73,
+      "loadAverage": 11.79
+    },
+    {
+      "scenario": "cold",
+      "name": "round2",
+      "round": 0,
+      "wallMs": 315.66,
+      "loadAverage": 11.79
+    },
+    {
+      "scenario": "cold",
+      "name": "round2",
+      "round": 1,
+      "wallMs": 205.79,
+      "loadAverage": 12.69
+    },
+    {
+      "scenario": "cold",
+      "name": "round1",
+      "round": 1,
+      "wallMs": 261.17,
+      "loadAverage": 12.69
+    },
+    {
+      "scenario": "cold",
+      "name": "baseline",
+      "round": 1,
+      "wallMs": 341.34,
+      "loadAverage": 12.69
+    },
+    {
+      "scenario": "cold",
+      "name": "baseline",
+      "round": 2,
+      "wallMs": 350.31,
+      "loadAverage": 12.69
+    },
+    {
+      "scenario": "cold",
+      "name": "round1",
+      "round": 2,
+      "wallMs": 203.16,
+      "loadAverage": 12.69
+    },
+    {
+      "scenario": "cold",
+      "name": "round2",
+      "round": 2,
+      "wallMs": 261.87,
+      "loadAverage": 12.69
+    },
+    {
+      "scenario": "cold",
+      "name": "round2",
+      "round": 3,
+      "wallMs": 231.19,
+      "loadAverage": 12.69
+    },
+    {
+      "scenario": "cold",
+      "name": "round1",
+      "round": 3,
+      "wallMs": 215.71,
+      "loadAverage": 12.69
+    },
+    {
+      "scenario": "cold",
+      "name": "baseline",
+      "round": 3,
+      "wallMs": 482.97,
+      "loadAverage": 12.69
+    },
+    {
+      "scenario": "cold",
+      "name": "baseline",
+      "round": 4,
+      "wallMs": 305.29,
+      "loadAverage": 12.69
+    },
+    {
+      "scenario": "cold",
+      "name": "round1",
+      "round": 4,
+      "wallMs": 179.04,
+      "loadAverage": 12.69
+    },
+    {
+      "scenario": "cold",
+      "name": "round2",
+      "round": 4,
+      "wallMs": 200.66,
+      "loadAverage": 12.69
+    },
+    {
+      "scenario": "serial",
+      "name": "baseline",
+      "round": 0,
+      "wallMs": 2504.51,
+      "loadAverage": 12.69
+    },
+    {
+      "scenario": "serial",
+      "name": "round1",
+      "round": 0,
+      "wallMs": 3397.51,
+      "loadAverage": 13.27
+    },
+    {
+      "scenario": "serial",
+      "name": "round2",
+      "round": 0,
+      "wallMs": 1043.72,
+      "loadAverage": 13.27
+    },
+    {
+      "scenario": "serial",
+      "name": "round2",
+      "round": 1,
+      "wallMs": 792.12,
+      "loadAverage": 13.89
+    },
+    {
+      "scenario": "serial",
+      "name": "round1",
+      "round": 1,
+      "wallMs": 2081.01,
+      "loadAverage": 13.89
+    },
+    {
+      "scenario": "serial",
+      "name": "baseline",
+      "round": 1,
+      "wallMs": 2716.69,
+      "loadAverage": 13.89
+    },
+    {
+      "scenario": "serial",
+      "name": "baseline",
+      "round": 2,
+      "wallMs": 2093.92,
+      "loadAverage": 14.14
+    },
+    {
+      "scenario": "serial",
+      "name": "round1",
+      "round": 2,
+      "wallMs": 2092.95,
+      "loadAverage": 14.14
+    },
+    {
+      "scenario": "serial",
+      "name": "round2",
+      "round": 2,
+      "wallMs": 897.07,
+      "loadAverage": 13.81
+    },
+    {
+      "scenario": "serial",
+      "name": "round2",
+      "round": 3,
+      "wallMs": 963.51,
+      "loadAverage": 13.81
+    },
+    {
+      "scenario": "serial",
+      "name": "round1",
+      "round": 3,
+      "wallMs": 2790.31,
+      "loadAverage": 13.81
+    },
+    {
+      "scenario": "serial",
+      "name": "baseline",
+      "round": 3,
+      "wallMs": 3087.99,
+      "loadAverage": 13.81
+    },
+    {
+      "scenario": "serial",
+      "name": "baseline",
+      "round": 4,
+      "wallMs": 2433.59,
+      "loadAverage": 14.07
+    },
+    {
+      "scenario": "serial",
+      "name": "round1",
+      "round": 4,
+      "wallMs": 2127,
+      "loadAverage": 13.74
+    },
+    {
+      "scenario": "serial",
+      "name": "round2",
+      "round": 4,
+      "wallMs": 1087.57,
+      "loadAverage": 13.74
+    },
+    {
+      "scenario": "corpus",
+      "name": "baseline",
+      "round": 0,
+      "wallMs": 1536.49,
+      "loadAverage": 13.74
+    },
+    {
+      "scenario": "corpus",
+      "name": "round1",
+      "round": 0,
+      "wallMs": 1110.7,
+      "loadAverage": 13.28
+    },
+    {
+      "scenario": "corpus",
+      "name": "round2",
+      "round": 0,
+      "wallMs": 443.07,
+      "loadAverage": 13.28
+    },
+    {
+      "scenario": "corpus",
+      "name": "round2",
+      "round": 1,
+      "wallMs": 350.84,
+      "loadAverage": 13.28
+    },
+    {
+      "scenario": "corpus",
+      "name": "round1",
+      "round": 1,
+      "wallMs": 737.91,
+      "loadAverage": 13.28
+    },
+    {
+      "scenario": "corpus",
+      "name": "baseline",
+      "round": 1,
+      "wallMs": 1292.82,
+      "loadAverage": 13.28
+    },
+    {
+      "scenario": "corpus",
+      "name": "baseline",
+      "round": 2,
+      "wallMs": 931.48,
+      "loadAverage": 13.28
+    },
+    {
+      "scenario": "corpus",
+      "name": "round1",
+      "round": 2,
+      "wallMs": 715.57,
+      "loadAverage": 13.28
+    },
+    {
+      "scenario": "corpus",
+      "name": "round2",
+      "round": 2,
+      "wallMs": 342.39,
+      "loadAverage": 12.62
+    },
+    {
+      "scenario": "corpus",
+      "name": "round2",
+      "round": 3,
+      "wallMs": 362.11,
+      "loadAverage": 12.62
+    },
+    {
+      "scenario": "corpus",
+      "name": "round1",
+      "round": 3,
+      "wallMs": 706.54,
+      "loadAverage": 12.62
+    },
+    {
+      "scenario": "corpus",
+      "name": "baseline",
+      "round": 3,
+      "wallMs": 945.61,
+      "loadAverage": 12.62
+    },
+    {
+      "scenario": "corpus",
+      "name": "baseline",
+      "round": 4,
+      "wallMs": 886.8,
+      "loadAverage": 12.62
+    },
+    {
+      "scenario": "corpus",
+      "name": "round1",
+      "round": 4,
+      "wallMs": 771.12,
+      "loadAverage": 12.62
+    },
+    {
+      "scenario": "corpus",
+      "name": "round2",
+      "round": 4,
+      "wallMs": 467.53,
+      "loadAverage": 12.62
+    },
+    {
+      "scenario": "cached",
+      "name": "round1",
+      "round": 0,
+      "wallMs": 121.7,
+      "loadAverage": 13.21
+    },
+    {
+      "scenario": "cached",
+      "name": "round2",
+      "round": 0,
+      "wallMs": 120.55,
+      "loadAverage": 13.21
+    },
+    {
+      "scenario": "cached",
+      "name": "round2",
+      "round": 1,
+      "wallMs": 125.71,
+      "loadAverage": 13.21
+    },
+    {
+      "scenario": "cached",
+      "name": "round1",
+      "round": 1,
+      "wallMs": 139.17,
+      "loadAverage": 13.21
+    },
+    {
+      "scenario": "cached",
+      "name": "round1",
+      "round": 2,
+      "wallMs": 137,
+      "loadAverage": 13.21
+    },
+    {
+      "scenario": "cached",
+      "name": "round2",
+      "round": 2,
+      "wallMs": 111.59,
+      "loadAverage": 13.21
+    },
+    {
+      "scenario": "cached",
+      "name": "round2",
+      "round": 3,
+      "wallMs": 114.12,
+      "loadAverage": 13.21
+    },
+    {
+      "scenario": "cached",
+      "name": "round1",
+      "round": 3,
+      "wallMs": 102.83,
+      "loadAverage": 13.21
+    },
+    {
+      "scenario": "cached",
+      "name": "round1",
+      "round": 4,
+      "wallMs": 106.3,
+      "loadAverage": 13.21
+    },
+    {
+      "scenario": "cached",
+      "name": "round2",
+      "round": 4,
+      "wallMs": 102.84,
+      "loadAverage": 13.21
+    }
+  ]
+}

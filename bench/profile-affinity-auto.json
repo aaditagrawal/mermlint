@@ -1,0 +1,377 @@
+{
+  "node": "v24.21.0",
+  "wallMs": 406,
+  "snippets": 2001,
+  "errors": 400,
+  "workers": 4,
+  "phases": [
+    {
+      "threadId": 0,
+      "phases": {
+        "discoveryAndRead": 22.439,
+        "extractionAndCacheRead": 5.994,
+        "lint": 302.173,
+        "assemblyAndCacheWrite": 0.443,
+        "report": 7.413
+      },
+      "snippets": 2001,
+      "workers": 4
+    },
+    {
+      "threadId": 1,
+      "phases": {
+        "engineImportAndInitialize": 52.614,
+        "parseAndLazyImports": 115.95,
+        "resultClone": 1.756
+      },
+      "snippets": 600
+    },
+    {
+      "threadId": 2,
+      "phases": {
+        "engineImportAndInitialize": 54.204,
+        "parseAndLazyImports": 153.755,
+        "resultClone": 0.289
+      },
+      "snippets": 400
+    },
+    {
+      "threadId": 3,
+      "phases": {
+        "engineImportAndInitialize": 52.745,
+        "parseAndLazyImports": 180.588,
+        "resultClone": 1.164
+      },
+      "snippets": 601
+    },
+    {
+      "threadId": 4,
+      "phases": {
+        "engineImportAndInitialize": 53.255,
+        "parseAndLazyImports": 63.612,
+        "resultClone": 0.229
+      },
+      "snippets": 400
+    }
+  ],
+  "profiles": [
+    {
+      "threadId": 0,
+      "durationMs": 365,
+      "samplesMs": {
+        "other": 51,
+        "io": 10,
+        "compilation": 12,
+        "moduleEvaluation": 2,
+        "gc": 5,
+        "idle": 284
+      },
+      "topSelfMs": [
+        [
+          "(idle)",
+          284
+        ],
+        [
+          "(program)",
+          17
+        ],
+        [
+          "<anonymous>",
+          11
+        ],
+        [
+          "compileForInternalLoader",
+          6
+        ],
+        [
+          "(garbage collector)",
+          5
+        ],
+        [
+          "writeReport",
+          5
+        ],
+        [
+          "readFileUtf8",
+          4
+        ],
+        [
+          "extractMarkdownMermaidFences",
+          2
+        ],
+        [
+          "compileSourceTextModule",
+          2
+        ],
+        [
+          "finish",
+          2
+        ],
+        [
+          "writeUtf8String",
+          2
+        ],
+        [
+          "normalize",
+          2
+        ]
+      ]
+    },
+    {
+      "threadId": 1,
+      "durationMs": 226,
+      "samplesMs": {
+        "other": 20,
+        "compilation": 59,
+        "gc": 12,
+        "moduleEvaluation": 29,
+        "configuration": 7,
+        "parsing": 71,
+        "diagnostics": 27,
+        "idle": 1
+      },
+      "topSelfMs": [
+        [
+          "<anonymous>",
+          47
+        ],
+        [
+          "compileSourceTextModule",
+          29
+        ],
+        [
+          "compileForInternalLoader",
+          21
+        ],
+        [
+          "parse",
+          14
+        ],
+        [
+          "remove",
+          14
+        ],
+        [
+          "(program)",
+          12
+        ],
+        [
+          "(garbage collector)",
+          12
+        ],
+        [
+          "normalizeMermaidError",
+          5
+        ],
+        [
+          "cloneConfig",
+          4
+        ],
+        [
+          "fromText",
+          3
+        ],
+        [
+          "detectDiagramKeyword",
+          3
+        ],
+        [
+          "cleanExpectedToken",
+          3
+        ]
+      ]
+    },
+    {
+      "threadId": 2,
+      "durationMs": 257,
+      "samplesMs": {
+        "other": 52,
+        "compilation": 71,
+        "gc": 7,
+        "io": 1,
+        "moduleEvaluation": 49,
+        "configuration": 1,
+        "parsing": 74,
+        "idle": 1
+      },
+      "topSelfMs": [
+        [
+          "<anonymous>",
+          53
+        ],
+        [
+          "compileSourceTextModule",
+          47
+        ],
+        [
+          "compileForInternalLoader",
+          15
+        ],
+        [
+          "(program)",
+          13
+        ],
+        [
+          "(garbage collector)",
+          7
+        ],
+        [
+          "__name",
+          7
+        ],
+        [
+          "linkContentToContainer",
+          6
+        ],
+        [
+          "fromText",
+          6
+        ],
+        [
+          "__require",
+          6
+        ],
+        [
+          "parse",
+          4
+        ],
+        [
+          "consume",
+          3
+        ],
+        [
+          "pickOnlyDefined",
+          2
+        ]
+      ]
+    },
+    {
+      "threadId": 3,
+      "durationMs": 288,
+      "samplesMs": {
+        "other": 26,
+        "compilation": 52,
+        "io": 1,
+        "gc": 8,
+        "moduleEvaluation": 32,
+        "configuration": 57,
+        "parsing": 97,
+        "diagnostics": 15,
+        "idle": 0
+      },
+      "topSelfMs": [
+        [
+          "<anonymous>",
+          55
+        ],
+        [
+          "fastAssignWithDepth",
+          25
+        ],
+        [
+          "compileSourceTextModule",
+          24
+        ],
+        [
+          "put",
+          22
+        ],
+        [
+          "parse",
+          14
+        ],
+        [
+          "compileForInternalLoader",
+          14
+        ],
+        [
+          "(program)",
+          12
+        ],
+        [
+          "cloneConfig",
+          8
+        ],
+        [
+          "(garbage collector)",
+          8
+        ],
+        [
+          "remove",
+          6
+        ],
+        [
+          "anonymous",
+          4
+        ],
+        [
+          "newParser.parse",
+          4
+        ]
+      ]
+    },
+    {
+      "threadId": 4,
+      "durationMs": 174,
+      "samplesMs": {
+        "other": 22,
+        "compilation": 51,
+        "gc": 13,
+        "idle": 3,
+        "moduleEvaluation": 24,
+        "parsing": 54,
+        "configuration": 6
+      },
+      "topSelfMs": [
+        [
+          "<anonymous>",
+          36
+        ],
+        [
+          "compileSourceTextModule",
+          26
+        ],
+        [
+          "compileForInternalLoader",
+          16
+        ],
+        [
+          "(garbage collector)",
+          13
+        ],
+        [
+          "(program)",
+          12
+        ],
+        [
+          "parse",
+          11
+        ],
+        [
+          "(idle)",
+          3
+        ],
+        [
+          "cloneConfig",
+          3
+        ],
+        [
+          "fromText",
+          3
+        ],
+        [
+          "fastAssignWithDepth",
+          3
+        ],
+        [
+          "requireBuiltin",
+          2
+        ],
+        [
+          "updateColors",
+          2
+        ]
+      ]
+    }
+  ]
+}

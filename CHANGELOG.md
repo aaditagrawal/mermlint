@@ -6,6 +6,14 @@
 - Require Node 22.12+ and migrate package management to a pinned Bun lockfile.
 - Split the bundled runtime into lazy diagram modules shared by CLI and workers.
 - Add parsing-only adapters, a faster configuration merge, and V8 compile caching.
+- Copy configuration sections on demand and reuse baseline config revisions when
+  resetting between diagrams, with mutation isolation and site-update invalidation.
+- Group worker batches by diagram family to reduce repeated grammar loading;
+  split large families across workers, let idle workers take the next batch,
+  and retain discovery-order diagnostics with one result transfer per worker.
+- Remove SVG renderer references from the bundled parsing entry and diagrams.
+- Skip content hashing with `--no-cache`; add main/worker CPU profiles, phase
+  timings, and complete corpus diagnostic comparison commands.
 - Cache success and failure reports by content hash; add `--no-cache` and `--cache-dir`.
 - Preserve Markdown source lines through comments, frontmatter, directives, blank
   lines, CRLF, indented fences, and Obsidian callout blockquotes.

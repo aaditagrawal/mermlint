@@ -133,30 +133,38 @@ compile cache is separate; disable it with `NODE_DISABLE_COMPILE_CACHE=1`.
 
 Auto mode stays in process below 512 uncached diagrams, then uses up to four
 workers, bounded by available cores and one worker per roughly 500 diagrams.
-Each worker reuses its loaded parsers for its whole weighted shard. `--workers 1`
+Idle workers take the next diagram-family batch from a shared queue. Large
+families split across workers; each worker reuses its loaded parsers. `--workers 1`
 forces serial parsing; `--workers N` forces a count, bounded by diagram count.
 `MERMLINT_WORKERS` sets the default. Output stays in discovery order.
 
 ## Performance
 
-Five-process medians on Node 24.21.0, AMD Ryzen 5 5600G, Linux. The
-baseline is the original Mermaid 11.15.0 bundle from commit `83f8d66`; the updated
-engine is 12.1.0. Both runs checked 2,001 diagrams in 1,001 files and found the
-same 400 errors. JSON records are in [bench/baseline.json](bench/baseline.json)
-and [bench/after.json](bench/after.json).
+Five-process medians on Node 24.21.0, AMD Ryzen 5 5600G, Linux. Every corpus
+run checked 2,001 diagrams in 1,001 files and found the same 400 errors. The
+original baseline column preserves the round-one README numbers for Mermaid
+11.15.0 at `83f8d66`. Round one, `3770510`, and round two use Mermaid 12.1.0.
 
-| Measurement | Before | After | Change |
-| --- | ---: | ---: | ---: |
-| Cold process, one diagram | 182.53 ms | 102.14 ms | 1.79x faster |
-| Serial corpus, uncached | 1555.27 ms | 1583.47 ms | 1.8% slower |
-| Serial throughput, including startup | 1,287/s | 1,264/s | Approximately unchanged |
-| Auto workers, uncached corpus | 844.40 ms | 795.66 ms | 1.06x faster |
-| Repeated corpus, default file cache | 844.40 ms | 97.62 ms | 8.65x faster |
+The new comparison alternates revision order each round. This host had other
+CPU-heavy jobs running, with one-minute load averages of 11.79 to 14.14. Use the
+matched rerun columns to compare revisions; startup and serial timings were
+more affected by contention than the later worker runs. All samples and loads
+are in [bench/comparison.json](bench/comparison.json). The original records remain
+in [bench/baseline.json](bench/baseline.json) and [bench/after.json](bench/after.json).
 
-The largest gains are startup and repeated checks. Uncached serial throughput
-is approximately unchanged after the major engine upgrade; this corpus does
-not show a large uncached throughput gain. Auto mode used six workers before
-and four after. Before had no persistent file cache.
+| Measurement | Original baseline | Original rerun | Round 1 rerun | Round 2 |
+| --- | ---: | ---: | ---: | ---: |
+| Cold process, one diagram | 182.53 ms | 341.34 ms | 215.71 ms | 231.19 ms |
+| Serial corpus, uncached | 1555.27 ms | 2504.51 ms | 2127.00 ms | 963.51 ms |
+| Serial throughput, including startup | 1287/s | 799/s | 941/s | 2077/s |
+| Auto workers, uncached corpus | 844.40 ms | 945.61 ms | 737.91 ms | 362.11 ms |
+| Repeated corpus, warm file cache | Unavailable | Unavailable | 121.70 ms | 114.12 ms |
+
+Uncached auto-worker wall time is **2.04x faster than round one** and
+2.61x faster than the original in the matched reruns. Serial is 2.21x and
+2.60x faster, respectively. One-diagram startup is approximately unchanged
+from round one and slightly slower in this sample. Auto mode uses six workers in
+the original and four in both updated builds. The original had no file cache.
 
 The benchmark regenerates 400 Markdown notes with five distinct diagrams each,
 600 Markdown files without diagrams, and one raw diagram. It mixes eight diagram
@@ -165,14 +173,18 @@ fresh Node process, file reads, parsing, and complete JSON reporting. V8 compile
 caching is disabled. Cached results come from a separate warmed file cache.
 Results vary with CPU, system load, engine version, and diagram complexity.
 
-The runtime uses esbuild splitting to load only needed diagram modules, rather
-than evaluating a monolithic bundle in every process. A parsing-only sanitizer
-adapter avoids building a DOM for labels. A pinned, tested configuration-merge
-adapter reduces allocation and property-definition overhead. Ordinary diagrams
-use Mermaid's parse-only constructor after resetting configuration; frontmatter
-and directives use the public `mermaid.parse` pipeline. The parsers and diagram
-DBs remain upstream Mermaid implementations. See [CONTRIBUTING.md](CONTRIBUTING.md)
-for adapter maintenance and reproducible benchmark commands.
+The runtime loads only needed grammar chunks. Config reads copy sections on
+access, and resets reuse the baseline revision until site configuration changes.
+The bundled entry drops rendering APIs and diagram renderer references. Workers
+take diagram-family batches from a shared queue and transfer their complete
+results once, keeping parser reuse and discovery-order reports. The upstream
+parsers and diagram DB constructors remain intact. All 2,001 result records,
+including complete errors and source locations, match round one exactly when
+elapsed time is excluded.
+
+See [bench/NOTES.md](bench/NOTES.md) for CPU profiles, phase timings, rejected
+experiments, and reproduction commands, and [CONTRIBUTING.md](CONTRIBUTING.md) for
+adapter maintenance.
 
 ## Development
 
@@ -183,7 +195,7 @@ bun run test
 bun run test:source
 bun run test:package
 bun run check:dist
-BENCH_MODE=after bun run bench
+bun run bench
 ```
 
 CI runs installation, deterministic rebuild verification, bundled and source
