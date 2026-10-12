@@ -1,6 +1,14 @@
 // Mermaid's getConfig merges into a fresh object at depth two. This specializes
 // that case: no destination lookups, recursive merge, or per-property helper.
 // Keep a fresh copy on every call because diagram initializers can mutate it.
+function cloneArray(source) {
+  const seen = new Set();
+  const result = [];
+  // Match includes-based deduplication while retaining the first value's -0.
+  for (const value of source) if (!seen.has(value)) { seen.add(value); result.push(value); }
+  return result;
+}
+
 export function cloneConfig(source, depth = 2) {
   const result = {};
   if (depth === 0) return Object.assign(result, source);
@@ -8,7 +16,7 @@ export function cloneConfig(source, depth = 2) {
     const value = source[key];
     if (value === null) continue;
     const copy = typeof value !== 'object' ? value
-      : Array.isArray(value) ? [...new Set(value)] : cloneConfig(value, depth - 1);
+      : Array.isArray(value) ? cloneArray(value) : cloneConfig(value, depth - 1);
     if (key === '__proto__') Object.defineProperty(result, key, { value: copy, writable: true, enumerable: true, configurable: true });
     else result[key] = copy;
   }
@@ -28,7 +36,7 @@ export function lazyConfigCopy(source) {
     if (typeof key !== 'string' || !Object.hasOwn(source, key) || source[key] === null) return;
     const value = source[key];
     const copy = typeof value !== 'object' ? value
-      : Array.isArray(value) ? [...new Set(value)] : cloneConfig(value, 1);
+      : Array.isArray(value) ? cloneArray(value) : cloneConfig(value, 1);
     Object.defineProperty(target, key, { value: copy, writable: true, enumerable: true, configurable: true });
   };
   return new Proxy(target, {

@@ -26,7 +26,7 @@ test('lazy configuration reads match upstream merge values and copy depth', asyn
   const symbol = Symbol('omitted above depth zero');
   for (const source of [
     getConfig(),
-    { scalar: 1, nil: null, array: [1, 1, NaN, NaN], section: { nil: null, deep: { nil: null, refs: { value: 1 }, array: [1, 1] } }, [symbol]: 2 },
+    { scalar: 1, nil: null, array: [1, 1, -0, 0, NaN, NaN], section: { nil: null, deep: { nil: null, refs: { value: 1 }, array: [1, 1] } }, [symbol]: 2 },
     JSON.parse('{"__proto__":{"value":1},"constructor":2,"toString":3,"section":{"__proto__":{"deep":1}}}')
   ]) {
     const expected = upstream({}, source);

@@ -160,6 +160,6 @@ Both bundled and source suites pass all 130 tests. New tests cover lazy-copy
 values and depth against upstream, prototype keys, mutation isolation, property
 order, symbols, deletion/reinsertion, reflection, freezing, config reset after
 directives and errors, site-update invalidation, global reset, every fixture's
-serial/worker diagnostics, a large single-family batch, and profiling stderr.
+serial/worker diagnostics, single-family splitting, and profiling stderr.
 The dependency-free package smoke test and deterministic rebuild check pass.
 No timing threshold is added to CI.

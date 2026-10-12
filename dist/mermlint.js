@@ -1,2 +1,2 @@
 #!/usr/bin/env node
-import{enableCompileCache as o}from"node:module";process.env.NODE_DISABLE_COMPILE_CACHE!=="1"&&o();var{main:s}=await import("./chunks/cli-JBFSISUY.js");s(process.argv.slice(2)).catch(e=>{console.error(`mermlint: ${e?.message||String(e)}`),process.exitCode=2});
+import{enableCompileCache as o}from"node:module";process.env.NODE_DISABLE_COMPILE_CACHE!=="1"&&o();var{main:s}=await import("./chunks/cli-266EM4GU.js");s(process.argv.slice(2)).catch(e=>{console.error(`mermlint: ${e?.message||String(e)}`),process.exitCode=2});
