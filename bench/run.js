@@ -7,7 +7,7 @@ import { cpus } from 'node:os';
 generate();
 const bin = resolve(process.env.MERMLINT_BENCH_BIN || 'dist/mermlint.js');
 const rounds = Number(process.env.BENCH_ROUNDS || 5);
-const mode = process.env.BENCH_MODE || 'baseline';
+const mode = process.env.BENCH_MODE || 'round2';
 const cacheDir = resolve('bench/.cache');
 function measure(path, args=[]) {
   const values=[]; let report;
@@ -31,5 +31,5 @@ if(mode!=='baseline') {
   spawnSync(process.execPath,[bin,corpus,'--cache-dir',cacheDir],{stdio:'ignore'});
   result.cached=measure(corpus,['--cache-dir',cacheDir]);
 }
-writeFileSync(`bench/${mode}.json`,JSON.stringify(result,null,2)+'\n');
+writeFileSync(process.env.BENCH_RESULT || `bench/${mode}.json`,JSON.stringify(result,null,2)+'\n');
 console.log(JSON.stringify(result,null,2));

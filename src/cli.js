@@ -1,6 +1,7 @@
 import packageInfo from '../package.json' with { type: 'json' };
 import { cacheKey, readCache, writeCache } from './cache.js';
 import { installSkill } from './install-skill.js';
+import { profileMark, profileReport } from './profile.js';
 import { existsSync, readdirSync, readFileSync, lstatSync } from 'node:fs';
 import { availableParallelism } from 'node:os';
 import { extname, join, resolve } from 'node:path';
@@ -41,14 +42,17 @@ export async function main(argv) {
   const inputs = options.stdin
     ? [{ path: options.name, kind: 'stdin', text: await readStdin() }]
     : collectInputs(options.paths, options.extensions);
+  profileMark('discoveryAndRead');
 
   const groups = inputs.map(item => {
-    const key = cacheKey(JSON.stringify([item.path, item.kind, item.text]));
+    const key = options.cache ? cacheKey(JSON.stringify([item.path, item.kind, item.text])) : null;
     const cached = options.cache && item.kind !== 'stdin' ? readCache(options.cacheDir, key) : null;
     return { key, cached, item, snippets: cached ? [] : extractSnippets(item) };
   });
   const snippets = groups.flatMap(group => group.snippets);
+  profileMark('extractionAndCacheRead');
   const batch = await lintSnippets(snippets, options.workers);
+  profileMark('lint');
   const workers = batch.workers;
   const results = [];
   let offset = 0;
@@ -73,8 +77,11 @@ export async function main(argv) {
     cachedFiles: groups.filter(group => group.cached).length,
     elapsedMs: Math.round((performance.now() - startedAt) * 1000) / 1000
   };
+  profileMark('assemblyAndCacheWrite');
 
   writeReport(options.format, results, summary);
+  profileMark('report');
+  profileReport({ snippets: snippets.length, workers });
 
   if (options.timing && options.format === 'compact') {
     stderr.write(`Checked ${summary.snippets} snippet(s) in ${summary.elapsedMs}ms across ${summary.files} file(s).\n`);
@@ -354,23 +361,22 @@ async function lintSnippetsInProcess(snippets) {
 }
 
 async function lintSnippetsWithWorkers(snippets, workerCount) {
-  const shards = Array.from({ length: workerCount }, () => ({ weight: 0, items: [] }));
-  const weighted = snippets
-    .map((snippet, order) => ({ order, snippet, weight: estimateParseWeight(snippet) }))
-    .sort((left, right) => right.weight - left.weight);
-
-  for (const item of weighted) {
-    let lightest = shards[0];
-    for (let index = 1; index < shards.length; index += 1) {
-      if (shards[index].weight < lightest.weight) {
-        lightest = shards[index];
-      }
-    }
-    lightest.items.push({ order: item.order, snippet: item.snippet });
-    lightest.weight += item.weight;
+  const families = new Map();
+  const maxBatch = Math.max(1, Math.floor(snippets.length / workerCount));
+  for (const [order, snippet] of snippets.entries()) {
+    const family = snippet.text.match(/^\s*(?:%%[^\n]*\n\s*)*([A-Za-z][\w-]*)/)?.[1] || '';
+    let batches = families.get(family);
+    if (!batches) families.set(family, batches = []);
+    let group = batches.at(-1);
+    // Keep small families together; a large family can fill several workers.
+    if (!group || group.items.length === maxBatch) batches.push(group = { weight: 0, items: [] });
+    group.items.push({ order, snippet });
+    group.weight += estimateParseWeight(snippet);
   }
-
-  const batches = await Promise.all(shards.map((shard) => shard.items).filter((shard) => shard.length > 0).map(runWorker));
+  const weighted = [...families.values()].flat().sort((left, right) => right.weight - left.weight);
+  let next = 0;
+  const takeBatch = () => weighted[next++]?.items || null;
+  const batches = await Promise.all(Array.from({ length: workerCount }, () => runWorker(takeBatch)));
   return batches
     .flat()
     .sort((left, right) => left.order - right.order)
@@ -381,14 +387,16 @@ function estimateParseWeight(snippet) {
   return snippet.text.length + snippet.text.split(/\r?\n/).length * 40;
 }
 
-function runWorker(shard) {
+function runWorker(takeBatch) {
   return new Promise((resolveWorker, rejectWorker) => {
     const worker = new Worker((existsSync(new URL('./worker.js', import.meta.url)) ? new URL('./worker.js', import.meta.url) : new URL('../worker.js', import.meta.url)), {
-      workerData: { shard }
+      workerData: {}
     });
 
     worker.on('message', (message) => {
-      if (message?.error) {
+      if (message?.ready || message?.batchFinished) {
+        worker.postMessage(takeBatch());
+      } else if (message?.error) {
         rejectWorker(new Error(message.error));
       } else {
         resolveWorker(message.results || []);

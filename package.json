@@ -18,6 +18,9 @@
     "test:source": "MERMLINT_TEST_SOURCE=1 node --test test/*.test.js",
     "build": "node scripts/build.js",
     "bench": "node bench/run.js",
+    "profile": "node bench/profile.js",
+    "bench:compare": "node bench/compare.js",
+    "bench:comparison": "node bench/comparison.js",
     "check:dist": "node scripts/check-dist.js",
     "test:package": "node scripts/package-smoke.js"
   },
