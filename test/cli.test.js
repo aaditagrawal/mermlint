@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import { spawnSync } from 'node:child_process';
 import { extractSnippets, parseArgs } from '../src/cli.js';
 
-const bin = new URL('../dist/mermlint.js', import.meta.url);
+const bin = new URL(process.env.MERMLINT_TEST_SOURCE ? '../bin/mermlint.js' : '../dist/mermlint.js', import.meta.url);
 
 test('extracts Mermaid fences from Markdown with line numbers', () => {
   const snippets = extractSnippets({

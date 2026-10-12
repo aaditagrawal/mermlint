@@ -1,4 +1,7 @@
-import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import packageInfo from '../package.json' with { type: 'json' };
+import { cacheKey, readCache, writeCache } from './cache.js';
+import { installSkill } from './install-skill.js';
+import { existsSync, readdirSync, readFileSync, lstatSync } from 'node:fs';
 import { availableParallelism } from 'node:os';
 import { extname, join, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
@@ -10,7 +13,8 @@ const DIRECT_EXTENSIONS = new Set(['.mmd', '.mermaid']);
 const MARKDOWN_EXTENSIONS = new Set(['.md', '.markdown']);
 
 const usage = `Usage:
-  mermlint [paths...] [--format compact|json|ndjson] [--workers auto|N] [--timing]
+  mermlint [paths...] [--format compact|json|ndjson] [--workers auto|N] [--timing] [--no-cache] [--cache-dir PATH]
+  mermlint install-skill [--claude|--codex|--project|--dir PATH] [--force]
   mermlint --stdin [--name label] [--format compact|json|ndjson]
 
 Examples:
@@ -21,9 +25,14 @@ Examples:
 `;
 
 export async function main(argv) {
+  if (argv[0] === 'install-skill') {
+    stdout.write(`Installed mermaid-linter at ${installSkill(argv.slice(1))}\n`);
+    return;
+  }
   const startedAt = performance.now();
   const options = parseArgs(argv);
 
+  if (options.version) { stdout.write(`${packageInfo.version}\n`); return; }
   if (options.help) {
     stdout.write(usage);
     return;
@@ -33,12 +42,26 @@ export async function main(argv) {
     ? [{ path: options.name, kind: 'stdin', text: await readStdin() }]
     : collectInputs(options.paths, options.extensions);
 
-  const snippets = [];
-  for (const item of inputs) {
-    snippets.push(...extractSnippets(item));
+  const groups = inputs.map(item => {
+    const key = cacheKey(JSON.stringify([item.path, item.kind, item.text]));
+    const cached = options.cache && item.kind !== 'stdin' ? readCache(options.cacheDir, key) : null;
+    return { key, cached, item, snippets: cached ? [] : extractSnippets(item) };
+  });
+  const snippets = groups.flatMap(group => group.snippets);
+  const batch = await lintSnippets(snippets, options.workers);
+  const workers = batch.workers;
+  const results = [];
+  let offset = 0;
+  for (const group of groups) {
+    if (group.cached) {
+      results.push(...group.cached.map(result => ({ ...result, elapsedMs: 0, cached: true })));
+    } else {
+      const parsed = batch.results.slice(offset, offset + group.snippets.length);
+      offset += group.snippets.length;
+      results.push(...parsed);
+      if (options.cache && group.item.kind !== 'stdin') writeCache(options.cacheDir, group.key, parsed);
+    }
   }
-
-  const { results, workers } = await lintSnippets(snippets, options.workers);
 
   const errored = results.filter((result) => !result.ok);
   const summary = {
@@ -47,6 +70,7 @@ export async function main(argv) {
     snippets: results.length,
     errors: errored.length,
     workers,
+    cachedFiles: groups.filter(group => group.cached).length,
     elapsedMs: Math.round((performance.now() - startedAt) * 1000) / 1000
   };
 
@@ -68,12 +92,26 @@ export function parseArgs(argv) {
     stdin: false,
     name: '<stdin>',
     timing: false,
-    help: false
+    help: false,
+    version: false,
+    cache: true,
+    cacheDir: resolve('.mermlint-cache')
   };
 
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
-    if (arg === '--help' || arg === '-h') {
+    if (arg === '--') {
+      options.paths.push(...argv.slice(index + 1));
+      break;
+    } else if (arg === '--no-cache') {
+      options.cache = false;
+    } else if (arg === '--cache-dir') {
+      const value = argv[++index];
+      if (!value || value.startsWith('--')) throw new Error('--cache-dir expects a path.');
+      options.cacheDir = resolve(value);
+    } else if (arg === '--version' || arg === '-v') {
+      options.version = true;
+    } else if (arg === '--help' || arg === '-h') {
       options.help = true;
     } else if (arg === '--stdin') {
       options.stdin = true;
@@ -96,7 +134,9 @@ export function parseArgs(argv) {
       }
       options.format = value;
     } else if (arg === '--name') {
-      options.name = argv[++index] || options.name;
+      const value = argv[++index];
+      if (!value || value.startsWith('--')) throw new Error('--name expects a label.');
+      options.name = value;
     } else if (arg.startsWith('--name=')) {
       options.name = arg.slice('--name='.length) || options.name;
     } else if (arg === '--ext') {
@@ -110,7 +150,8 @@ export function parseArgs(argv) {
     }
   }
 
-  if (!options.stdin && options.paths.length === 0 && !options.help) {
+  if (options.stdin && options.paths.length) throw new Error('Use either --stdin or file paths.');
+  if (!options.stdin && options.paths.length === 0 && !options.help && !options.version) {
     options.paths.push('.');
   }
 
@@ -118,11 +159,11 @@ export function parseArgs(argv) {
 }
 
 function parseExtensions(value) {
-  if (!value) {
+  if (!value || value.startsWith('--') || value.split(',').some(part => !part.trim())) {
     throw new Error('--ext expects a comma-separated extension list.');
   }
   return new Set(value.split(',').map((extension) => {
-    const trimmed = extension.trim();
+    const trimmed = extension.trim().toLowerCase();
     return trimmed.startsWith('.') ? trimmed : `.${trimmed}`;
   }));
 }
@@ -143,25 +184,29 @@ function parseWorkers(value) {
 
 function collectInputs(paths, extensions) {
   const inputs = [];
+  const seen = new Set();
   for (const path of paths) {
     const absolute = resolve(path);
     if (!existsSync(absolute)) {
       throw new Error(`Path does not exist: ${path}`);
     }
-    collectPath(absolute, extensions, inputs);
+    collectPath(absolute, extensions, inputs, seen);
   }
   return inputs;
 }
 
-function collectPath(path, extensions, inputs) {
-  const stats = statSync(path);
+function collectPath(path, extensions, inputs, seen) {
+  if (seen.has(path)) return;
+  seen.add(path);
+  const stats = lstatSync(path);
+  if (stats.isSymbolicLink()) return;
   if (stats.isDirectory()) {
     const entries = readdirSync(path, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name));
     for (const entry of entries) {
-      if (entry.name === 'node_modules' || entry.name === '.git' || entry.name === '.obsidian') {
+      if (entry.name === 'node_modules' || entry.name === '.git' || entry.name === '.obsidian' || entry.name === '.mermlint-cache') {
         continue;
       }
-      collectPath(join(path, entry.name), extensions, inputs);
+      collectPath(join(path, entry.name), extensions, inputs, seen);
     }
     return;
   }
@@ -189,8 +234,8 @@ export function extractSnippets(input) {
       index: 1,
       startLine: 1,
       startColumn: 1,
-      text: stripBom(input.text).trim()
-    }].filter((snippet) => snippet.text.length > 0);
+      text: stripBom(input.text)
+    }].filter((snippet) => snippet.text.trim().length > 0);
   }
 
   if (MARKDOWN_EXTENSIONS.has(extname(input.path).toLowerCase()) || looksLikeMarkdown(input.text)) {
@@ -201,56 +246,42 @@ export function extractSnippets(input) {
 }
 
 function extractMarkdownMermaidFences(source, text) {
-  if (!hasMermaidFence(text)) {
-    return [];
-  }
-
+  if (!hasMermaidFence(text)) return [];
   const snippets = [];
   const lines = stripBom(text).split(/\r?\n/);
   let fence = null;
-
-  for (let index = 0; index < lines.length; index += 1) {
-    const line = lines[index];
-    const open = line.match(/^(\s*)(`{3,}|~{3,})\s*([A-Za-z0-9_-]+)?[^\S\r\n]*.*$/);
-
-    if (!fence && open) {
-      const language = (open[3] || '').toLowerCase();
-      if (language === 'mermaid') {
-        fence = {
-          marker: open[2][0],
-          size: open[2].length,
-          startLine: index + 2,
-          lines: []
-        };
-      }
+  const finish = () => {
+    if (fence.mermaid && fence.lines.join('\n').trim()) {
+      snippets.push({ source, index: snippets.length + 1, startLine: fence.startLine,
+        startColumn: fence.sourceColumns[0] || 1, sourceColumns: fence.sourceColumns, originalLines: fence.originalLines, text: fence.lines.join('\n'), unclosed: fence.unclosed || false });
+    }
+    fence = null;
+  };
+  for (let index=0; index<lines.length; index++) {
+    const rawLine=lines[index];
+    const quotePrefix=rawLine.match(/^(?: {0,3}> ?)+/)?.[0] || '';
+    const line=rawLine.slice(quotePrefix.length);
+    if (fence) {
+      const close=line.match(/^\s*(`{3,}|~{3,})\s*$/);
+      if (close && close[1][0]===fence.marker && close[1].length>=fence.size) finish();
+      else { fence.lines.push(line); fence.sourceColumns.push(quotePrefix.length+1); fence.originalLines.push(rawLine); }
       continue;
     }
-
-    if (fence) {
-      const close = line.match(/^(\s*)(`{3,}|~{3,})\s*$/);
-      if (close && close[2][0] === fence.marker && close[2].length >= fence.size) {
-        const snippetText = fence.lines.join('\n').trim();
-        if (snippetText.length > 0) {
-          snippets.push({
-            source,
-            index: snippets.length + 1,
-            startLine: fence.startLine,
-            startColumn: 1,
-            text: snippetText
-          });
-        }
-        fence = null;
-      } else {
-        fence.lines.push(line);
-      }
-    }
+    const open=line.match(/^(\s*)(`{3,}|~{3,})\s*([A-Za-z0-9_-]+)?[^\S\r\n]*.*$/);
+    if (open) fence={ marker:open[2][0], size:open[2].length,
+      mermaid:(open[3]||'').toLowerCase()==='mermaid', startLine:index+2, lines:[], sourceColumns:[], originalLines:[] };
   }
-
+  if (fence) { fence.unclosed=true; finish(); }
   return snippets;
 }
 
-export async function loadMermaid() {
-  await installDomForMermaid();
+let mermaidPromise;
+export function loadMermaid() {
+  return mermaidPromise ||= initializeMermaid();
+}
+
+async function initializeMermaid() {
+  if (typeof MERMLINT_PARSE_ONLY === 'undefined' || !MERMLINT_PARSE_ONLY) await installDomForMermaid();
   const module = await import('mermaid');
   const mermaid = module.default;
   mermaid.initialize({
@@ -306,40 +337,18 @@ function resolveWorkerCount(workerSetting, snippetCount) {
     return Math.min(workerSetting, snippetCount);
   }
 
-  if (snippetCount < 256) {
+  if (snippetCount < 512) {
     return 1;
   }
 
   const cores = typeof availableParallelism === 'function' ? availableParallelism() : 2;
-  return Math.max(1, Math.min(6, cores, Math.ceil(snippetCount / 250)));
+  return Math.max(1, Math.min(4, cores, Math.ceil(snippetCount / 500)));
 }
 
 async function lintSnippetsInProcess(snippets) {
   const results = [];
-  const okCache = new Map();
   const mermaid = await loadMermaid();
-
-  for (const snippet of snippets) {
-    const cached = okCache.get(snippet.text);
-    if (cached) {
-      results.push({
-        ok: true,
-        source: snippet.source,
-        index: snippet.index,
-        startLine: snippet.startLine,
-        startColumn: snippet.startColumn,
-        diagramType: cached.diagramType,
-        elapsedMs: 0
-      });
-      continue;
-    }
-
-    const result = await lintSnippet(snippet, mermaid);
-    if (result.ok) {
-      okCache.set(snippet.text, { diagramType: result.diagramType });
-    }
-    results.push(result);
-  }
+  for (const snippet of snippets) results.push(await lintSnippet(snippet, mermaid));
 
   return results;
 }
@@ -374,7 +383,7 @@ function estimateParseWeight(snippet) {
 
 function runWorker(shard) {
   return new Promise((resolveWorker, rejectWorker) => {
-    const worker = new Worker(new URL('./worker.js', import.meta.url), {
+    const worker = new Worker((existsSync(new URL('./worker.js', import.meta.url)) ? new URL('./worker.js', import.meta.url) : new URL('../worker.js', import.meta.url)), {
       workerData: { shard }
     });
 
@@ -398,7 +407,19 @@ export async function lintSnippet(snippet, mermaidInstance) {
   const mermaid = mermaidInstance || await loadMermaid();
   const startedAt = performance.now();
   try {
-    const parsed = await mermaid.mermaidAPI.parse(snippet.text, { suppressErrors: false });
+    if (snippet.unclosed) throw new Error('Unclosed Mermaid code fence. Add a matching closing fence.');
+    let parsed;
+    if (/^\s*---(?:\r?\n|$)/.test(snippet.text) || snippet.text.includes('%%{')) {
+      // Config-bearing snippets need the public API's full configuration pipeline.
+      parsed = await mermaid.parse(snippet.text, { suppressErrors: false });
+    } else {
+      // Reset configuration between diagrams, then call the pinned engine's
+      // parse-only Diagram constructor. It clears each DB and lazily loads its
+      // grammar without the render appearance scope and directive merge passes.
+      mermaid.mermaidAPI.reset();
+      const diagram = await mermaid.mermaidAPI.getDiagramFromText(snippet.text);
+      parsed = { diagramType: diagram.getType() };
+    }
     return {
       ok: true,
       source: snippet.source,
@@ -423,21 +444,28 @@ export async function lintSnippet(snippet, mermaidInstance) {
 
 function normalizeMermaidError(error, snippet) {
   const hash = error?.hash;
-  const token = hash?.token || hash?.loc || {};
+  const token = hash?.loc || {};
+  const modern = error?.result?.parserErrors?.[0]?.token;
+  const lexical = error?.result?.lexerErrors?.[0];
   const fallback = parseLocationFromMessage(error?.str || error?.message || '');
-  const parserLine = Number(token.first_line ?? token.line ?? fallback.line ?? 0);
-  const parserColumn = Number(token.first_column ?? token.column ?? fallback.column ?? 0);
+  const parserLine = Number(modern?.startLine ?? lexical?.line ?? fallback.line ?? token.first_line ?? 0);
+  const parserColumn = Number(modern?.startColumn ? modern.startColumn - 1 : lexical?.column ? lexical.column - 1 : token.first_column ?? fallback.column ?? 0);
   const expected = Array.isArray(hash?.expected) ? hash.expected : [];
   const expectedCompact = expected.map(cleanExpectedToken).filter(Boolean);
   const message = stripAnsi(error?.str || error?.message || String(error)).replace(/\s+$/g, '');
   const snippetLines = snippet.text.split(/\r?\n/);
-  const relativeLine = clamp(parserLine || 1, 1, Math.max(1, snippetLines.length));
+  const diagramType = detectDiagramKeyword(snippet.text);
+  const sourceLines = parserSourceLines(snippet.text, diagramType);
+  const parserIndex = clamp(parserLine || 1, 1, Math.max(1, sourceLines.length)) - 1;
+  const eof = hash?.token === 'EOF' || hash?.token === 1 || parserLine > sourceLines.length;
+  const mapped = (eof ? sourceLines.findLast(item => snippetLines[item.line-1]?.trim()) : sourceLines[parserIndex]) || { line: 1, columnOffset: 0 };
+  const relativeLine = mapped.line;
   const lineText = snippetLines[relativeLine - 1] || '';
-  const relativeColumn = clamp(parserColumn > 0 ? parserColumn + 1 : 1, 1, Math.max(1, lineText.length + 1));
+  const relativeColumn = clamp(eof ? lineText.length + 1 : parserColumn + 1 + mapped.columnOffset, 1, Math.max(1, lineText.length + 1));
   const absoluteLine = snippet.startLine + relativeLine - 1;
-  const absoluteColumn = relativeColumn;
-  const frame = buildCodeFrame(snippet.text, relativeLine, absoluteLine, absoluteColumn);
-  const found = normalizeFoundToken(token, message);
+  const absoluteColumn = relativeColumn + (snippet.sourceColumns?.[relativeLine-1] || 1) - 1;
+  const frame = buildCodeFrame(snippet.originalLines?.join('\n') || snippet.text, relativeLine, absoluteLine, absoluteColumn);
+  const found = hash?.token || modern?.image || normalizeFoundToken(token, message);
   const hint = buildRepairHint({
     message,
     found,
@@ -448,10 +476,11 @@ function normalizeMermaidError(error, snippet) {
 
   return {
     message,
+    diagramType,
     line: absoluteLine,
     column: absoluteColumn,
     relativeLine,
-    relativeColumn: absoluteColumn,
+    relativeColumn,
     parserLine: parserLine || null,
     parserColumn: parserColumn || null,
     found,
@@ -467,7 +496,7 @@ function normalizeMermaidError(error, snippet) {
         line: absoluteLine,
         column: absoluteColumn,
         relativeLine,
-        relativeColumn: absoluteColumn
+        relativeColumn
       },
       repairHints: buildRepairHints({
         message,
@@ -485,10 +514,49 @@ function normalizeMermaidError(error, snippet) {
   };
 }
 
+function strippedParserSource(text, preserveComments = false) {
+  let indexed = text.replace(/\r\n?/g, '\n').split('').map((char, index) => ({ char, index }));
+  const remove = regex => {
+    const value = indexed.map(item => item.char).join('');
+    const ranges = [...value.matchAll(regex)].map(match => [match.index, match.index + match[0].length]);
+    let range = 0;
+    indexed = indexed.filter((_, index) => {
+      while (range < ranges.length && index >= ranges[range][1]) range++;
+      return range >= ranges.length || index < ranges[range][0];
+    });
+  };
+  remove(/^\s*---\r?\n[\s\S]*?\r?\n\s*---(?:\r?\n|$)/g);
+  remove(/%%\{[\s\S]*?\}%%/g);
+  if (!preserveComments) {
+    remove(/^\s*%%(?!\{)[^\n]+\n?/gm);
+    remove(/^\s+/g);
+  }
+  return indexed;
+}
+function detectDiagramKeyword(text) {
+  return strippedParserSource(text).map(item => item.char).join('').trimStart().match(/^[A-Za-z][A-Za-z0-9-]*/)?.[0] || null;
+}
+function parserSourceLines(text, diagramType) {
+  // Event modeling preserves comments; its positions already include frontmatter offsets.
+  const indexed = strippedParserSource(text, diagramType === 'eventmodeling');
+  const original = text.replace(/\r\n?/g, '\n');
+  const positions = [0];
+  for (let i=0; i<original.length; i++) if (original[i]==='\n') positions.push(i+1);
+  let line = 0;
+  const map = [];
+  let newLine = true;
+  for (const item of indexed) {
+    while (line+1 < positions.length && positions[line+1] <= item.index) line++;
+    if (newLine) { map.push({ line: line+1, columnOffset: item.index-positions[line] }); newLine=false; }
+    if (item.char === '\n') newLine=true;
+  }
+  return map;
+}
+
 function parseLocationFromMessage(message) {
   const lineMatch = message.match(/Parse error on line (\d+)/i);
-  const caretLine = message.split(/\r?\n/).find((line) => line.includes('^'));
-  const column = caretLine ? caretLine.indexOf('^') + 1 : 0;
+  const columnMatch = message.match(/column (\d+)/i);
+  const column = columnMatch ? Number(columnMatch[1]) - 1 : 0;
   return {
     line: lineMatch ? Number(lineMatch[1]) : 0,
     column
@@ -564,9 +632,11 @@ function buildRepairHint(context) {
 
 function buildRepairHints({ message, found, expected, lineText, snippet }) {
   const hints = [];
-  const firstLine = snippet.text.split(/\r?\n/, 1)[0]?.trim() || '';
+  const firstLine = detectDiagramKeyword(snippet.text) || snippet.text.trimStart().split(/\r?\n/, 1)[0] || '';
   const lowerMessage = message.toLowerCase();
   const lowerLine = lineText.toLowerCase();
+
+  if (/unclosed Mermaid code fence/i.test(message)) hints.push('Add a closing fence with the same marker and at least the opening fence length.');
 
   if (/no diagram type detected/i.test(message)) {
     hints.push(`Start the snippet with a supported Mermaid diagram keyword; current first line is "${firstLine || '<empty>'}".`);
@@ -591,6 +661,24 @@ function buildRepairHints({ message, found, expected, lineText, snippet }) {
   if (expected.includes('NL') || expected.includes('NEWLINE')) {
     hints.push('Check whether this statement needs to end before the next Mermaid statement starts.');
   }
+
+  const typeHints = {
+    sequenceDiagram: 'Use participant->>participant: message; pair loop, alt, opt, and par blocks with end.',
+    classDiagram: 'Check class names, relationship arrows, and balanced member braces.',
+    'stateDiagram-v2': 'Check state transitions and close composite states with a matching brace.',
+    stateDiagram: 'Check state transitions and close composite states with a matching brace.',
+    erDiagram: 'Use ENTITY ||--o{ ENTITY : label and valid attribute declarations.',
+    gantt: 'Check dateFormat, task dates, durations, and colon-separated task fields.',
+    architecture: 'Check service/group declarations, referenced IDs, and edge ports such as db:L -- R:api.',
+    'architecture-beta': 'Check service/group declarations, referenced IDs, and edge ports such as db:L -- R:api.',
+    mindmap: 'Use one root and indent each child more than its parent.',
+    sankey: 'Use source,target,numeric-value rows after the sankey header.',
+    'sankey-beta': 'Use source,target,numeric-value rows after the sankey header.',
+    'packet-beta': 'Use numeric bit ranges followed by a colon and a quoted label.',
+    packet: 'Use numeric bit ranges followed by a colon and a quoted label.'
+  };
+  if (typeHints[firstLine]) hints.push(typeHints[firstLine]);
+  else if (firstLine && !/flowchart|graph/.test(firstLine)) hints.push(`Check ${firstLine} statement syntax, delimiters, and indentation against Mermaid 12 documentation.`);
 
   if (expected.length > 0) {
     hints.push(`Parser expected one of: ${expected.slice(0, 6).join(', ')}.`);
@@ -634,7 +722,7 @@ function looksLikeMarkdown(text) {
 }
 
 function hasMermaidFence(text) {
-  return /(^|\n)(`{3,}|~{3,})\s*mermaid\b/i.test(text);
+  return /(^|\n)[ \t]*(?:>[ \t]*)*(`{3,}|~{3,})\s*mermaid\b/i.test(text);
 }
 
 function readStdin() {
