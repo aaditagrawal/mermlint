@@ -1,44 +1,48 @@
 ---
 name: mermaid-linter
-description: Use this skill when validating MermaidJS diagrams, Mermaid code fences in Markdown or Obsidian notes, or raw .mmd/.mermaid snippets with the mermlint CLI.
+description: Validate and repair Mermaid diagrams in Markdown, Obsidian notes, .mmd/.mermaid files, or generated snippets using mermlint. Use after editing diagrams or when Mermaid reports a syntax error.
 ---
 
-# Mermaid Linter
+# Mermaid linter
 
-Use `mermlint` before trusting or publishing Mermaid diagrams. It validates Mermaid syntax using Mermaid's parser and supports raw snippets, `.mmd`/`.mermaid` files, Markdown fences, and Obsidian notes.
+Run the narrowest relevant file after creating or editing a diagram. Prefer an
+installed `mermlint`, or `node ./dist/mermlint.js` when working in this repository.
+The package runner is `bunx mermlinter`, once the package is published. The CLI
+requires Node 22.12+ and validates Mermaid 12.1 syntax.
 
-## Workflow
-
-1. Prefer checking the narrowest file or directory that contains the diagram.
-2. Use agent-readable output for automation:
-
-```bash
-mermlint path/to/note.md --format json
+```sh
+mermlint docs/architecture.md --format json
+mermlint notes/ --format ndjson
+printf '%s\n' 'flowchart TD' 'A --> B' | mermlint --stdin --name generated.mmd --format json
 ```
 
-3. For clipboard or generated snippets, pipe the raw diagram:
+Use the process exit status and report together:
 
-```bash
-printf '%s\n' 'graph TD
-A-->B' | mermlint --stdin --name generated.mmd --format json
+- `0`: discovered diagrams passed. Check `summary.snippets` before claiming that a diagram was checked. A zero count means none were found.
+- `1`: syntax or diagram validation failed. Use each failed result's `source` and `error.line` / `error.column` to locate the edit in the original file.
+- `2`: invocation or runtime failure. Resolve the CLI problem before changing diagram syntax.
+
+Read `error.frame` and `error.agent.repairHints`. Make the smallest change that
+preserves the diagram's meaning, then rerun the same file. Source coordinates are
+one-based. `relativeLine` / `relativeColumn` refer to the extracted snippet;
+`parserLine` / `parserColumn` preserve raw parser coordinates, which can differ
+after comments or frontmatter are removed. EOF diagnostics point to the last
+real diagram line.
+
+For example, repair a missing flowchart target by adding the intended node:
+
+```mermaid
+flowchart TD
+A --> B
 ```
 
-4. Treat exit codes as authoritative:
+For raw generated text use stdin; for Markdown use the whole file so diagnostics
+map to the file. Markdown supports backtick and tilde fences, including Obsidian
+callout blockquotes. Vault scans skip `.obsidian`, `.git`, `node_modules`, and
+symlinks. NDJSON ends with a `{ "summary": ... }` record.
 
-- `0`: all discovered Mermaid snippets parsed successfully.
-- `1`: at least one Mermaid snippet failed.
-- `2`: CLI usage or runtime failure.
-
-## Output
-
-Use `--format compact` for human scanning, `--format json` for structured reports, and `--format ndjson` when streaming results into another tool.
-
-Each failed result includes `source`, `index`, `startLine`, and an `error` object. For Markdown, locations point back to the original note file.
-
-When fixing a failure, use `error.agent.summary` first, then patch around `error.line` / `error.column`. If Mermaid reports coordinates past the end of a snippet, the linter clamps `error.line` to the nearest real Mermaid line and preserves the raw parser values as `error.parserLine` / `error.parserColumn`. Use `error.frame`, `error.offendingLine`, and `error.agent.repairHints` to make the smallest plausible edit, then rerun the exact file with `--format json`.
-
-## Performance
-
-Run directory checks directly; the CLI recursively scans only `.md`, `.markdown`, `.mmd`, and `.mermaid` files by default and skips `.git`, `.obsidian`, and `node_modules`.
-
-`--workers auto` is the default. Use it for directory or vault checks. For a single generated snippet, no extra option is needed because the CLI stays in-process. Auto mode uses weighted worker sharding for larger batches. Use `--workers 1` only when reproducing timing or debugging worker-specific behavior.
+The content cache invalidates when file contents change. Use `--no-cache` when
+investigating unexpected results. Parsing does not verify rendering, layout,
+links, or compatibility with an older Mermaid version embedded in a host app.
+External diagram plugins such as ZenUML are not bundled. If the host app uses an
+older engine or a plugin, also validate in that host before claiming compatibility.

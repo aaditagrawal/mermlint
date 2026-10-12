@@ -13,7 +13,7 @@ function measure(path, args=[]) {
   const values=[]; let report;
   for(let i=0;i<rounds;i++) {
     const start=performance.now();
-    const run=spawnSync(process.execPath,[bin,path,'--format','json',...args],{encoding:'utf8',maxBuffer:32*1024*1024,env:{...process.env,NODE_COMPILE_CACHE:''}});
+    const run=spawnSync(process.execPath,[bin,path,'--format','json',...args],{encoding:'utf8',maxBuffer:32*1024*1024,env:{...process.env,NODE_COMPILE_CACHE:'',NODE_DISABLE_COMPILE_CACHE:'1'}});
     if (![0,1].includes(run.status)) throw new Error(run.stderr);
     values.push(performance.now()-start); report=JSON.parse(run.stdout);
   }
