@@ -1,0 +1,3 @@
+display_name: Mermaid Linter
+short_description: Validate Mermaid snippets and Markdown fences with mermlint.
+default_prompt: Use mermlint to validate MermaidJS diagrams in files, directories, Markdown fences, Obsidian notes, or raw stdin snippets. Prefer JSON output when another agent or script will consume the results.

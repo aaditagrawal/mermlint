@@ -1,0 +1,44 @@
+{
+  "name": "mermlinter",
+  "version": "0.1.0",
+  "description": "Fast, agent-friendly MermaidJS linter for snippets, Markdown fences, and Obsidian notes.",
+  "type": "module",
+  "bin": {
+    "mermlint": "./dist/mermlint.js"
+  },
+  "files": [
+    "dist/",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "node --test",
+    "test:source": "node --test test/cli.test.js",
+    "build": "node scripts/build.js"
+  },
+  "keywords": [
+    "mermaid",
+    "mermaidjs",
+    "linter",
+    "markdown",
+    "obsidian",
+    "agent"
+  ],
+  "author": "Aadit Agrawal",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.0",
+    "linkedom": "0.18.12",
+    "mermaid": "11.15.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aaditagrawal/mermlint.git"
+  },
+  "bugs": {
+    "url": "https://github.com/aaditagrawal/mermlint/issues"
+  },
+  "homepage": "https://github.com/aaditagrawal/mermlint#readme"
+}
