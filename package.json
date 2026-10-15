@@ -21,6 +21,7 @@
     "profile": "node bench/profile.js",
     "bench:compare": "node bench/compare.js",
     "bench:comparison": "node bench/comparison.js",
+    "bench:refactor": "node bench/refactor.js",
     "check:dist": "node scripts/check-dist.js",
     "test:package": "node scripts/package-smoke.js"
   },
@@ -39,7 +40,6 @@
   },
   "devDependencies": {
     "esbuild": "0.28.2",
-    "linkedom": "0.18.13",
     "mermaid": "12.1.0"
   },
   "repository": {

@@ -24,6 +24,21 @@ commit messages and describe the behavior that changed.
 
 ## Parser maintenance
 
+The source modules separate the CLI's responsibilities:
+
+- `options.js` parses flags; `inputs.js` discovers files and reads stdin.
+- `snippets.js` extracts fenced or standalone diagrams with source metadata.
+- `engine.js` initializes Mermaid; `parser.js` returns source-independent parser
+  outcomes; `lint.js` schedules sequential or worker parsing.
+- `diagnostics.js` and `source-map.js` build reports against the current source.
+- `project.js` coordinates file and diagram reuse through `cache.js`.
+- `report.js` writes terminal, JSON, or NDJSON output; `cli.js` connects them.
+
+Workers import the engine and parser directly. Parser outcomes must contain only
+cloneable data and must not contain source paths, line numbers in the containing
+file, or repair instructions. Format those after parsing or cache reuse. Include
+fence closure state in diagram identities, and retain output discovery order.
+
 Mermaid is pinned because the build includes parsing adapters. The DOMPurify
 alias preserves labels without HTML sanitization because the CLI never renders
 HTML/SVG or attaches callbacks. Never reuse that alias for a renderer. The config
@@ -44,7 +59,11 @@ The bundled entry exposes only parsing APIs and removes renderer references from
 35 diagram definitions covering 37 registrations. The build guards fail when
 expected definitions change. The upstream parsers, DB constructors, DB clearing,
 initializers, preprocessing, and type detection remain intact. Keep source tests
-as an independent check against the unmodified Mermaid package.
+as an independent check against upstream parsers and configuration. Source
+execution registers `source-loader.js` through Node's native module loader. It
+aliases only Mermaid's DOMPurify import to the same parse-only sanitizer as the
+bundle, so neither execution path requires a DOM package. It does not apply the
+bundled config, reset, entry-point, or renderer adapters to the source engine.
 
 Ordinary diagrams reset the Mermaid configuration and use the pinned engine's
 `mermaidAPI.getDiagramFromText`. Config-bearing frontmatter and directives use
@@ -103,6 +122,22 @@ MERMLINT_COMPARE_BIN=/path/to/previous/dist/mermlint.js bun run bench:compare
 This checks all 2,001 results against the old serial run using serial, two-worker,
 four-worker, and auto runs. Only `elapsedMs` is excluded. Every message, location,
 frame, hint, and output position must match.
+
+### Incremental benchmarks
+
+For an alternating comparison with incremental-edit scenarios, preserve the old
+build with its package metadata, then run:
+
+```sh
+MERMLINT_COMPARE_BIN=/path/to/previous/dist/mermlint.js bun run bench:refactor
+```
+
+This compares cold startup, uncached serial/worker scans, warm caches, prose-only
+edits, and editing one of five diagrams in a note. Each round verifies identical
+diagnostics apart from timing and cache indicators. `BENCH_ROUNDS` controls sample
+count; `BENCH_RESULT` chooses the output file, defaulting to `bench/refactor.json`.
+The driver uses temporary caches and records load with every sample. Run it
+without concurrent tests or other benchmarks.
 
 ## Release checklist
 

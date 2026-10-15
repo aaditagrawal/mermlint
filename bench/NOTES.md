@@ -163,3 +163,56 @@ directives and errors, site-update invalidation, global reset, every fixture's
 serial/worker diagnostics, single-family splitting, and profiling stderr.
 The dependency-free package smoke test and deterministic rebuild check pass.
 No timing threshold is added to CI.
+
+## Component refactor and incremental caching
+
+The next refactor separates discovery, extraction, parser outcomes, scheduling,
+diagnostics, cache reuse, and reporting. Workers import only parsing code and
+transfer source-independent outcomes. Source mapping uses numeric offsets when
+text is removed and computes diagram detection and repair hints once per error.
+Discovery reuses directory-entry metadata instead of repeating `lstat` calls.
+
+The cache keeps one stable entry per input file, with the report and parser
+outcomes on separate JSON lines. Unchanged files decode only their reports.
+Changed files reuse outcomes for exact diagram text and fence closure state,
+then rebuild diagnostics against current source metadata. Markdown without
+Mermaid fences skips disk cache operations entirely. Initial experiments that
+eagerly decoded all cached outcomes regressed warm scans; that approach was
+discarded. A partial-file reader added complexity without a measured gain and
+was also discarded.
+
+Five alternating fresh-process runs against the saved `51c9b82` build on Node
+24.21.0 and AMD Ryzen 5 5600G produced these medians:
+
+- Cold single diagram: 98.03 ms before, 97.61 ms after.
+- Uncached serial corpus: 559.58 ms before, 529.73 ms after.
+- Uncached auto-worker corpus: 369.40 ms before, 345.99 ms after.
+- Warm cached corpus: 100.36 ms before, 97.75 ms after.
+- Prose-only edit in a five-diagram note: 123.00 ms before, 40.25 ms after.
+- Editing one diagram in that note: 124.76 ms before, 98.25 ms after.
+
+Corpus runs use the same 1,001 files, 2,001 diagrams, and 400 errors as the earlier
+comparisons. Edit scenarios warm the original note outside the timed interval,
+then prepend prose or change one node label. Wall time includes startup and JSON
+reporting, and V8 compile caching is disabled. Other host workloads were active;
+raw samples and system loads are in `refactor.json`. These small uncached gains
+should not be interpreted as hardware-independent guarantees. The prose-only
+case reuses all five parser outcomes and starts no engine or workers.
+
+Every measured pair has identical diagnostics apart from timing and cache
+indicators. The complete corpus also matches the saved build in serial,
+two-worker, four-worker, and auto modes. Another 648 preprocessing combinations
+match the previous source-map implementation. Both bundled and source suites
+pass 138 tests; package smoke tests and deterministic rebuild verification pass.
+
+Removing linkedom eliminates 22 lockfile entries. The source engine aliases only
+DOMPurify through Node's module loader and otherwise uses upstream parsers and
+configuration. The package still has zero runtime dependencies, with Mermaid and
+esbuild as its two development dependencies. Total `dist/` bytes fall from
+5,531,399 to 5,235,900, including license notices.
+
+Reproduce with a preserved previous `dist/` and its `package.json`:
+
+```sh
+MERMLINT_COMPARE_BIN=/path/to/previous/dist/mermlint.js bun run bench:refactor
+```

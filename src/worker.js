@@ -1,6 +1,7 @@
 import { parentPort } from 'node:worker_threads';
 import { on } from 'node:events';
-import { lintSnippet, loadMermaid } from './cli.js';
+import { parseSnippet } from './parser.js';
+import { loadMermaid } from './engine.js';
 import { profileMark, profileReport } from './profile.js';
 
 try {
@@ -14,7 +15,7 @@ try {
     for (const item of shard) {
       results.push({
         order: item.order,
-        result: await lintSnippet(item.snippet, mermaid)
+        result: await parseSnippet(item.snippet, mermaid)
       });
     }
     parentPort.postMessage({ batchFinished: true });

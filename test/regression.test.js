@@ -4,7 +4,9 @@ import { mkdtempSync, rmSync, writeFileSync, mkdirSync, readFileSync, readdirSyn
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { spawnSync } from 'node:child_process';
-import { extractSnippets, parseArgs, loadMermaid } from '../src/cli.js';
+import { extractSnippets } from '../src/snippets.js';
+import { parseArgs } from '../src/options.js';
+import { loadMermaid } from '../src/engine.js';
 import { fastAssignWithDepth } from '../src/fast-assign.js';
 import { diagrams } from './diagrams.js';
 const bin = new URL(process.env.MERMLINT_TEST_SOURCE ? '../bin/mermlint.js' : '../dist/mermlint.js', import.meta.url).pathname;
@@ -145,7 +147,8 @@ test('corrupt and incompatible caches are misses',()=>temporary(dir=>{
   const args=[file,'--cache-dir',cache,'--format','json'];run(args);
   const entry=join(cache,readdirSync(cache)[0]);
   writeFileSync(entry,'{corrupt');assert.equal(JSON.parse(run(args).stdout).summary.cachedFiles,0);
-  const data=JSON.parse(readFileSync(entry));data.schema='old';writeFileSync(entry,JSON.stringify(data));
+  const [header,diagrams]=readFileSync(entry,'utf8').split('\n');
+  const data=JSON.parse(header);data.schema='old';writeFileSync(entry,JSON.stringify(data)+'\n'+diagrams);
   assert.equal(JSON.parse(run(args).stdout).summary.cachedFiles,0);
 }));
 test('cache is optional on read-only paths and --no-cache creates no cache',()=>temporary(dir=>{

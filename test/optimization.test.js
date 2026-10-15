@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { cloneConfig, lazyConfigCopy } from '../src/clone-config.js';
-import { loadMermaid } from '../src/cli.js';
+import { loadMermaid } from '../src/engine.js';
 import { diagrams } from './diagrams.js';
 
 const bin = new URL(process.env.MERMLINT_TEST_SOURCE ? '../bin/mermlint.js' : '../dist/mermlint.js', import.meta.url).pathname;

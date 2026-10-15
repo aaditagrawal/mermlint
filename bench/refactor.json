@@ -1,0 +1,435 @@
+{
+  "node": "v24.21.0",
+  "cpu": "AMD Ryzen 5 5600G with Radeon Graphics",
+  "rounds": 5,
+  "files": 1001,
+  "diagrams": 2001,
+  "measurements": {
+    "cold": {
+      "beforeMs": 98.03,
+      "afterMs": 97.61,
+      "speedup": 1,
+      "samples": {
+        "before": [
+          {
+            "elapsedMs": 99.41,
+            "load": 20.78,
+            "workers": 1,
+            "cachedSnippets": 0
+          },
+          {
+            "elapsedMs": 96.58,
+            "load": 20.78,
+            "workers": 1,
+            "cachedSnippets": 0
+          },
+          {
+            "elapsedMs": 100.93,
+            "load": 20.78,
+            "workers": 1,
+            "cachedSnippets": 0
+          },
+          {
+            "elapsedMs": 95.44,
+            "load": 20.78,
+            "workers": 1,
+            "cachedSnippets": 0
+          },
+          {
+            "elapsedMs": 98.03,
+            "load": 20.78,
+            "workers": 1,
+            "cachedSnippets": 0
+          }
+        ],
+        "after": [
+          {
+            "elapsedMs": 94.01,
+            "load": 20.78,
+            "workers": 1,
+            "cachedSnippets": 0
+          },
+          {
+            "elapsedMs": 106.12,
+            "load": 20.78,
+            "workers": 1,
+            "cachedSnippets": 0
+          },
+          {
+            "elapsedMs": 97.61,
+            "load": 20.78,
+            "workers": 1,
+            "cachedSnippets": 0
+          },
+          {
+            "elapsedMs": 93.58,
+            "load": 20.78,
+            "workers": 1,
+            "cachedSnippets": 0
+          },
+          {
+            "elapsedMs": 99.36,
+            "load": 20.78,
+            "workers": 1,
+            "cachedSnippets": 0
+          }
+        ]
+      }
+    },
+    "serial": {
+      "beforeMs": 559.58,
+      "afterMs": 529.73,
+      "speedup": 1.06,
+      "samples": {
+        "before": [
+          {
+            "elapsedMs": 567.68,
+            "load": 20.78,
+            "workers": 1,
+            "cachedSnippets": 0
+          },
+          {
+            "elapsedMs": 548.46,
+            "load": 20.78,
+            "workers": 1,
+            "cachedSnippets": 0
+          },
+          {
+            "elapsedMs": 530.46,
+            "load": 20.78,
+            "workers": 1,
+            "cachedSnippets": 0
+          },
+          {
+            "elapsedMs": 559.58,
+            "load": 20.64,
+            "workers": 1,
+            "cachedSnippets": 0
+          },
+          {
+            "elapsedMs": 562.5,
+            "load": 20.64,
+            "workers": 1,
+            "cachedSnippets": 0
+          }
+        ],
+        "after": [
+          {
+            "elapsedMs": 508.6,
+            "load": 20.78,
+            "workers": 1,
+            "cachedSnippets": 0
+          },
+          {
+            "elapsedMs": 516.82,
+            "load": 20.78,
+            "workers": 1,
+            "cachedSnippets": 0
+          },
+          {
+            "elapsedMs": 569.55,
+            "load": 20.64,
+            "workers": 1,
+            "cachedSnippets": 0
+          },
+          {
+            "elapsedMs": 576.31,
+            "load": 20.64,
+            "workers": 1,
+            "cachedSnippets": 0
+          },
+          {
+            "elapsedMs": 529.73,
+            "load": 20.64,
+            "workers": 1,
+            "cachedSnippets": 0
+          }
+        ]
+      }
+    },
+    "workers": {
+      "beforeMs": 369.4,
+      "afterMs": 345.99,
+      "speedup": 1.07,
+      "samples": {
+        "before": [
+          {
+            "elapsedMs": 367.56,
+            "load": 20.64,
+            "workers": 4,
+            "cachedSnippets": 0
+          },
+          {
+            "elapsedMs": 371.96,
+            "load": 20.64,
+            "workers": 4,
+            "cachedSnippets": 0
+          },
+          {
+            "elapsedMs": 369.4,
+            "load": 20.64,
+            "workers": 4,
+            "cachedSnippets": 0
+          },
+          {
+            "elapsedMs": 394.93,
+            "load": 21.31,
+            "workers": 4,
+            "cachedSnippets": 0
+          },
+          {
+            "elapsedMs": 344.47,
+            "load": 21.31,
+            "workers": 4,
+            "cachedSnippets": 0
+          }
+        ],
+        "after": [
+          {
+            "elapsedMs": 352.31,
+            "load": 20.64,
+            "workers": 4,
+            "cachedSnippets": 0
+          },
+          {
+            "elapsedMs": 341.12,
+            "load": 20.64,
+            "workers": 4,
+            "cachedSnippets": 0
+          },
+          {
+            "elapsedMs": 350.25,
+            "load": 21.31,
+            "workers": 4,
+            "cachedSnippets": 0
+          },
+          {
+            "elapsedMs": 335.53,
+            "load": 21.31,
+            "workers": 4,
+            "cachedSnippets": 0
+          },
+          {
+            "elapsedMs": 345.99,
+            "load": 21.31,
+            "workers": 4,
+            "cachedSnippets": 0
+          }
+        ]
+      }
+    },
+    "cached": {
+      "beforeMs": 100.36,
+      "afterMs": 97.75,
+      "speedup": 1.03,
+      "samples": {
+        "before": [
+          {
+            "elapsedMs": 140.78,
+            "load": 21.31,
+            "workers": 0,
+            "cachedSnippets": 0
+          },
+          {
+            "elapsedMs": 100.36,
+            "load": 21.31,
+            "workers": 0,
+            "cachedSnippets": 0
+          },
+          {
+            "elapsedMs": 100.48,
+            "load": 21.31,
+            "workers": 0,
+            "cachedSnippets": 0
+          },
+          {
+            "elapsedMs": 92.56,
+            "load": 21.31,
+            "workers": 0,
+            "cachedSnippets": 0
+          },
+          {
+            "elapsedMs": 96.97,
+            "load": 21.31,
+            "workers": 0,
+            "cachedSnippets": 0
+          }
+        ],
+        "after": [
+          {
+            "elapsedMs": 108.51,
+            "load": 21.31,
+            "workers": 0,
+            "cachedSnippets": 2001
+          },
+          {
+            "elapsedMs": 95.99,
+            "load": 21.31,
+            "workers": 0,
+            "cachedSnippets": 2001
+          },
+          {
+            "elapsedMs": 97.75,
+            "load": 21.31,
+            "workers": 0,
+            "cachedSnippets": 2001
+          },
+          {
+            "elapsedMs": 102.39,
+            "load": 21.31,
+            "workers": 0,
+            "cachedSnippets": 2001
+          },
+          {
+            "elapsedMs": 92.84,
+            "load": 21.31,
+            "workers": 0,
+            "cachedSnippets": 2001
+          }
+        ]
+      }
+    },
+    "proseEdit": {
+      "beforeMs": 123,
+      "afterMs": 40.25,
+      "speedup": 3.06,
+      "samples": {
+        "before": [
+          {
+            "elapsedMs": 126.91,
+            "load": 21.31,
+            "workers": 1,
+            "cachedSnippets": 0
+          },
+          {
+            "elapsedMs": 129.09,
+            "load": 21.12,
+            "workers": 1,
+            "cachedSnippets": 0
+          },
+          {
+            "elapsedMs": 123,
+            "load": 21.12,
+            "workers": 1,
+            "cachedSnippets": 0
+          },
+          {
+            "elapsedMs": 113.76,
+            "load": 21.12,
+            "workers": 1,
+            "cachedSnippets": 0
+          },
+          {
+            "elapsedMs": 121.29,
+            "load": 21.12,
+            "workers": 1,
+            "cachedSnippets": 0
+          }
+        ],
+        "after": [
+          {
+            "elapsedMs": 41.53,
+            "load": 21.12,
+            "workers": 0,
+            "cachedSnippets": 5
+          },
+          {
+            "elapsedMs": 38.98,
+            "load": 21.12,
+            "workers": 0,
+            "cachedSnippets": 5
+          },
+          {
+            "elapsedMs": 40.25,
+            "load": 21.12,
+            "workers": 0,
+            "cachedSnippets": 5
+          },
+          {
+            "elapsedMs": 39.83,
+            "load": 21.12,
+            "workers": 0,
+            "cachedSnippets": 5
+          },
+          {
+            "elapsedMs": 41.46,
+            "load": 21.12,
+            "workers": 0,
+            "cachedSnippets": 5
+          }
+        ]
+      }
+    },
+    "diagramEdit": {
+      "beforeMs": 124.76,
+      "afterMs": 98.25,
+      "speedup": 1.27,
+      "samples": {
+        "before": [
+          {
+            "elapsedMs": 126.92,
+            "load": 21.12,
+            "workers": 1,
+            "cachedSnippets": 0
+          },
+          {
+            "elapsedMs": 110.78,
+            "load": 21.12,
+            "workers": 1,
+            "cachedSnippets": 0
+          },
+          {
+            "elapsedMs": 115.91,
+            "load": 21.12,
+            "workers": 1,
+            "cachedSnippets": 0
+          },
+          {
+            "elapsedMs": 124.76,
+            "load": 21.12,
+            "workers": 1,
+            "cachedSnippets": 0
+          },
+          {
+            "elapsedMs": 136.43,
+            "load": 21.12,
+            "workers": 1,
+            "cachedSnippets": 0
+          }
+        ],
+        "after": [
+          {
+            "elapsedMs": 107.04,
+            "load": 21.12,
+            "workers": 1,
+            "cachedSnippets": 4
+          },
+          {
+            "elapsedMs": 95.31,
+            "load": 21.12,
+            "workers": 1,
+            "cachedSnippets": 4
+          },
+          {
+            "elapsedMs": 93.86,
+            "load": 21.12,
+            "workers": 1,
+            "cachedSnippets": 4
+          },
+          {
+            "elapsedMs": 98.25,
+            "load": 21.12,
+            "workers": 1,
+            "cachedSnippets": 4
+          },
+          {
+            "elapsedMs": 105.04,
+            "load": 21.12,
+            "workers": 1,
+            "cachedSnippets": 4
+          }
+        ]
+      }
+    }
+  }
+}

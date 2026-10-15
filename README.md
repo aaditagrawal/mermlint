@@ -1,55 +1,56 @@
 # mermlint
 
-Validate Mermaid diagrams in Markdown, Obsidian notes, `.mmd` / `.mermaid` files,
-and stdin. Get source locations and repair hints for agents, or compact output
-for a terminal. Uses Mermaid 12.1.0 and requires Node 22.12+.
+Check Mermaid diagrams in Markdown, Obsidian notes, and `.mmd` / `.mermaid` files.
+Get terminal output or JSON with source locations and repair hints.
 
-The executable is `mermlint`; the package name is `mermlinter`. The complete
-runtime lives in committed `dist/` files, with no runtime npm dependencies.
+Requires **Node.js 22.12+**. No browser or runtime dependencies.
 
-## Install the agent skill
+## Quick start
 
-From this checkout, this works now without downloading anything:
+From this checkout, run the bundled CLI immediately. No install or build needed:
 
 ```sh
-node ./dist/mermlint.js install-skill --codex
+node ./dist/mermlint.js notes/
 ```
 
-After the GitHub repository is published, install through the
-[open skills installer](https://github.com/vercel-labs/skills):
+## Install
+
+To make `mermlint` available from any directory, install this checkout with Bun:
 
 ```sh
-bunx skills add aaditagrawal/mermlint --skill mermaid-linter
-# Equivalent: npx skills add aaditagrawal/mermlint --skill mermaid-linter
+bun install --global --production .
+mermlint notes/
 ```
 
-After the npm package is published, the CLI can copy its bundled skill directly:
+This uses the prebuilt bundle and skips development dependencies.
+
+After publication to npm, use `bun install --global mermlinter`, or run without a
+global install using `bunx mermlinter notes/`. The package is `mermlinter`;
+the installed command is `mermlint`.
+
+## Agent skill
+
+A [short Mermaid skill](agent-skills/mermaid-linter/SKILL.md) ships with the CLI.
+After installing the command, choose your agent:
 
 ```sh
-bunx mermlinter install-skill --codex
+mermlint install-skill --codex
+# Or, for Claude Code:
+mermlint install-skill --claude
 ```
 
-`--codex` installs into `~/.codex/skills`; `--claude` uses `~/.claude/skills`.
-`--project`, the default, uses `./.claude/skills`. `--dir PATH` selects any skill
-parent directory. The installer creates a `mermaid-linter` subdirectory and
-refuses to overwrite an existing skill unless you pass `--force`. The skill is
-included in the package at `agent-skills/mermaid-linter`.
+Without a global install, use `node ./dist/mermlint.js install-skill --codex`.
+Codex installs to `~/.codex/skills`; Claude installs to `~/.claude/skills`.
+Use `--project` for `./.claude/skills`, `--dir PATH` for another skills directory,
+or `--force` to replace an existing copy. The skill folder is `mermaid-linter`.
 
-## Use the CLI
-
-The checked-in bundles work without installing build dependencies:
+## Usage
 
 ```sh
-node ./dist/mermlint.js docs/architecture.md
-node ./dist/mermlint.js notes/ --format json
-node ./dist/mermlint.js notes/ --workers 4 --format ndjson
-printf '%s\n' 'flowchart TD' 'A --> B' | node ./dist/mermlint.js --stdin --name generated.mmd --format json
-```
-
-Once the npm package is published:
-
-```sh
-bunx mermlinter docs/architecture.md --format json
+mermlint docs/architecture.md
+mermlint notes/ --format json
+mermlint notes/ --workers 4 --format ndjson
+printf '%s\n' 'flowchart TD' 'A --> B' | mermlint --stdin --format json
 ```
 
 With no paths, the CLI scans the current directory. It checks `.md`, `.markdown`,
@@ -113,22 +114,32 @@ engine's supported syntax.
 
 ## Cache and workers
 
-The default content cache is `.mermlint-cache/` under the current working
-directory. Both successes and diagnostics are keyed by file path, input kind,
-contents, engine version, and diagnostic schema. Editing or moving a file
-invalidates its entry; stdin is never persisted. Cached results have
-`cached: true` and `elapsedMs: 0`; `summary.cachedFiles` counts reused files.
-A fully cached run starts no parser or workers.
+The default cache is `.mermlint-cache/` under the current working directory.
+Each file has one entry containing its latest report and parser outcomes, keyed
+by path, input kind, engine version, and diagnostic schema. Unchanged files reuse
+their reports. After edits, unchanged diagrams reuse their parser outcomes and
+rebuild source locations, frames, and repair hints against the current file.
+Prose edits and moving a diagram into an Obsidian callout need no parser startup.
+Unclosed fences have separate cache identities from closed fences.
+
+Cached results have `cached: true` and `elapsedMs: 0`.
+`summary.cachedFiles` counts unchanged files reused from disk;
+`summary.cachedSnippets` also includes diagrams reused after edits. Markdown
+files without Mermaid fences bypass the disk cache. Exact duplicate diagrams
+share parsing within a cache-enabled run, and outcomes from cached input files
+can be reused by other files in that run. Stdin is never persisted. A fully
+cached run starts no parser or workers.
 
 ```sh
-node ./dist/mermlint.js notes/ --no-cache
-node ./dist/mermlint.js notes/ --cache-dir /tmp/mermlint-cache
+mermlint notes/ --no-cache
+mermlint notes/ --cache-dir /tmp/mermlint-cache
 ```
 
 An unavailable or corrupt cache falls back to parsing. Entries contain source
-paths and may contain diagnostic excerpts. Ignore `.mermlint-cache/` in projects
-where you use the CLI. Delete the directory to clear it; old content hashes do
-not expire automatically. `--no-cache` disables file-result caching. Node's V8
+paths, diagram text, and diagnostic excerpts. Ignore `.mermlint-cache/` in projects
+where you use the CLI. Delete the directory to clear it. Entries for deleted files
+and older cache schemas are not pruned automatically. `--no-cache` disables both
+persistent caching and duplicate reuse. Node's V8
 compile cache is separate; disable it with `NODE_DISABLE_COMPILE_CACHE=1`.
 
 Auto mode stays in process below 512 uncached diagrams, then uses up to four
@@ -186,6 +197,12 @@ See [bench/NOTES.md](bench/NOTES.md) for CPU profiles, phase timings, rejected
 experiments, and reproduction commands, and [CONTRIBUTING.md](CONTRIBUTING.md) for
 adapter maintenance.
 
+The component refactor adds incremental diagram reuse and reduces filesystem,
+worker-transfer, and diagnostic-allocation work. Its alternating before/after
+benchmark also measures prose-only edits and single-diagram edits. See
+[bench/refactor.json](bench/refactor.json) for samples and
+`bun run bench:refactor` in [CONTRIBUTING.md](CONTRIBUTING.md) for reproduction.
+
 ## Development
 
 ```sh
@@ -200,6 +217,9 @@ bun run bench
 
 CI runs installation, deterministic rebuild verification, bundled and source
 tests, and a dependency-free tarball smoke test on Node 22.12.0 and Node 24.
+Only Mermaid and esbuild are development dependencies. Source tests use Node's
+module loader with the same parse-only sanitizer as the bundle; no DOM package
+is required.
 `bun.lock` pins build inputs. `dist/THIRD_PARTY_NOTICES.txt` includes dependency
 licenses alongside esbuild's preserved legal comments. Keep `dist/` committed
 when changing the runtime. The package has no automatic publishing lifecycle.

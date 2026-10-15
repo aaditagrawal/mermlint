@@ -4,7 +4,8 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { spawnSync } from 'node:child_process';
-import { extractSnippets, parseArgs } from '../src/cli.js';
+import { extractSnippets } from '../src/snippets.js';
+import { parseArgs } from '../src/options.js';
 
 const bin = new URL(process.env.MERMLINT_TEST_SOURCE ? '../bin/mermlint.js' : '../dist/mermlint.js', import.meta.url);
 

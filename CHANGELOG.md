@@ -2,6 +2,19 @@
 
 ## 0.2.0 - Unreleased
 
+- Simplify installation instructions and ship a short agent skill with the CLI.
+- Separate CLI options, file discovery, snippet extraction, engine loading,
+  parsing, scheduling, diagnostics, caching, and reporting into source modules.
+- Reuse unchanged diagram outcomes after prose or partial edits, and regenerate
+  diagnostics at their current source locations. Add `summary.cachedSnippets`.
+- Skip disk caching for Markdown without Mermaid fences; replace each file's
+  cache entry atomically and decode parser outcomes only when needed.
+- Reuse directory-entry metadata, reduce source-map allocations, transfer only
+  parser data between workers, and terminate sibling workers on worker failure.
+- Remove linkedom and its dependency tree. Keep zero runtime dependencies and
+  only Mermaid and esbuild as development dependencies.
+- Add incremental-cache regressions and an alternating before/after benchmark.
+
 - Upgrade Mermaid to 12.1.0, esbuild to 0.28.2, and linkedom to 0.18.13.
 - Require Node 22.12+ and migrate package management to a pinned Bun lockfile.
 - Split the bundled runtime into lazy diagram modules shared by CLI and workers.
